@@ -1,0 +1,431 @@
+/* ============================================
+   ALODUST - COMPONENT STYLES
+   Buttons, Cards, Inputs, Badges
+   ============================================ */
+
+/* ========== BUTTONS ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-family: var(--font-display);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 32px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+/* Primary Button - Orange to Magenta Gradient */
+.btn-primary {
+  background: var(--gradient-cta);
+  color: var(--text-primary);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-hover);
+  transition: left var(--duration-normal) var(--ease-smooth);
+  z-index: 0;
+}
+
+.btn-primary:hover::before {
+  left: 0;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 20px var(--glow-orange);
+  transform: translateY(-2px);
+}
+
+.btn-primary span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ghost Button - Cyan Border */
+.btn-ghost {
+  background: transparent;
+  color: var(--neon-cyan);
+  border: 2px solid var(--neon-cyan);
+  padding: 10px 28px;
+}
+
+.btn-ghost:hover {
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 15px var(--glow-cyan);
+}
+
+/* Danger Button */
+.btn-danger {
+  background: var(--error-red);
+  color: var(--text-primary);
+}
+
+.btn-danger:hover {
+  background: #ff4d6d;
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Button Sizes */
+.btn-sm {
+  font-size: var(--text-xs);
+  padding: 8px 16px;
+}
+
+.btn-lg {
+  font-size: var(--text-lg);
+  padding: 16px 40px;
+}
+
+/* Disabled State */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Icon Button */
+.btn-icon {
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--carbon-gray);
+  color: var(--text-secondary);
+  border: 1px solid var(--steel-gray);
+}
+
+.btn-icon:hover {
+  background: var(--slate-gray);
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+}
+
+/* ========== CARDS ========== */
+.card {
+  background: var(--carbon-gray);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+/* Gradient Top Border */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gradient-cta);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(0, 255, 255, 0.3);
+  border-color: var(--neon-cyan);
+}
+
+/* Clickable Card */
+.card-clickable {
+  cursor: pointer;
+}
+
+/* Card Glow Variants */
+.card-glow-cyan:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 30px var(--glow-cyan);
+}
+
+.card-glow-magenta:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 30px var(--glow-magenta);
+}
+
+.card-glow-orange:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 30px var(--glow-orange);
+}
+
+/* ========== INPUTS ========== */
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.input-label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  background: var(--void-black);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--glow-cyan);
+}
+
+.input-error {
+  border-color: var(--error-red) !important;
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.3) !important;
+}
+
+.input-error-text {
+  font-size: var(--text-sm);
+  color: var(--error-red);
+}
+
+.input-icon-left {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 12px;
+  color: var(--text-muted);
+}
+
+.input.has-icon-left {
+  padding-left: 40px;
+}
+
+.input.has-icon-right {
+  padding-right: 40px;
+}
+
+/* ========== BADGES ========== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+}
+
+/* Live Badge */
+.badge-live {
+  background: var(--neon-green);
+  color: var(--void-black);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.badge-live::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--void-black);
+  border-radius: 50%;
+}
+
+/* Status Badges */
+.badge-online {
+  background: rgba(57, 255, 20, 0.2);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+}
+
+.badge-offline {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  border: 1px solid var(--steel-gray);
+}
+
+.badge-away {
+  background: rgba(255, 165, 0, 0.2);
+  color: var(--warning-amber);
+  border: 1px solid var(--warning-amber);
+}
+
+/* Feature Badges */
+.badge-new {
+  background: var(--gradient-cta);
+  color: var(--text-primary);
+}
+
+.badge-beta {
+  background: rgba(157, 0, 255, 0.2);
+  color: var(--electric-purple);
+  border: 1px solid var(--electric-purple);
+}
+
+/* ========== AVATARS ========== */
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--slate-gray);
+  border: 2px solid var(--steel-gray);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  font-family: var(--font-display);
+  font-weight: var(--font-bold);
+  color: var(--neon-cyan);
+  text-transform: uppercase;
+}
+
+/* Avatar Sizes */
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  font-size: var(--text-sm);
+}
+
+.avatar-md {
+  width: 48px;
+  height: 48px;
+  font-size: var(--text-lg);
+}
+
+.avatar-lg {
+  width: 64px;
+  height: 64px;
+  font-size: var(--text-2xl);
+}
+
+.avatar-xl {
+  width: 96px;
+  height: 96px;
+  font-size: var(--text-4xl);
+}
+
+/* Avatar Status Indicator */
+.avatar-status {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--carbon-gray);
+}
+
+.avatar-status.online {
+  background: var(--neon-green);
+}
+
+.avatar-status.streaming {
+  background: var(--neon-green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.avatar-status.offline {
+  background: var(--steel-gray);
+}
+
+.avatar-status.away {
+  background: var(--warning-amber);
+}
+
+/* ========== DIVIDERS ========== */
+.divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--steel-gray) 20%,
+    var(--steel-gray) 80%,
+    transparent
+  );
+  margin: var(--space-xl) 0;
+}
+
+.divider-glow {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--neon-cyan) 50%,
+    transparent
+  );
+  box-shadow: 0 0 10px var(--glow-cyan);
+}
+
+/* ========== TOOLTIPS ========== */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--void-black);
+  color: var(--text-primary);
+  font-size: var(--text-xs);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--neon-cyan);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--duration-fast) var(--ease-smooth);
+  z-index: var(--z-tooltip);
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-4px);
+}

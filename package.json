@@ -1,0 +1,28 @@
+{
+  "name": "alodust",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Real-time watch party platform with zero latency",
+  "workspaces": [
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=web",
+    "preview": "npm run preview --workspace=web"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alodust/alodust"
+  },
+  "keywords": [
+    "streaming",
+    "watch-party",
+    "sunshine",
+    "moonlight",
+    "tailscale",
+    "pwa"
+  ],
+  "author": "Alodust Team",
+  "license": "MIT"
+}

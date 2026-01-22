@@ -1,0 +1,130 @@
+/* ============================================
+   ALODUST DESIGN SYSTEM - CSS VARIABLES
+   Cyberpunk/Tron Aesthetic
+   ============================================ */
+
+:root {
+  /* ========== NEON CYBERPUNK PALETTE ========== */
+  --neon-cyan: #00FFFF;           /* Primary accent - Tron Blue */
+  --neon-magenta: #FF00FF;        /* Secondary accent - Cyber Pink */
+  --neon-orange: #FF4D00;         /* CTA buttons - CodeRabbit inspired */
+  --electric-purple: #9D00FF;     /* Tertiary accent */
+  --neon-green: #39FF14;          /* Success states, live indicators */
+
+  /* ========== BASE COLORS ========== */
+  --deep-space: #0A0A0F;          /* Primary background */
+  --void-black: #000000;          /* Pure black for contrast */
+  --carbon-gray: #1A1A24;         /* Card backgrounds */
+  --slate-gray: #2A2A3A;          /* Secondary surfaces */
+  --steel-gray: #3A3A4A;          /* Borders, dividers */
+
+  /* ========== FUNCTIONAL COLORS ========== */
+  --grid-line: rgba(0, 255, 255, 0.15);    /* Grid overlay */
+  --glow-cyan: rgba(0, 255, 255, 0.5);     /* Neon glow effects */
+  --glow-magenta: rgba(255, 0, 255, 0.5);  /* Magenta glow */
+  --glow-orange: rgba(255, 77, 0, 0.5);    /* Orange glow */
+  --warning-amber: #FFA500;
+  --error-red: #FF3366;
+  --success-green: #39FF14;
+
+  /* ========== TEXT COLORS ========== */
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --text-disabled: rgba(255, 255, 255, 0.3);
+
+  /* ========== TYPOGRAPHY ========== */
+  --font-display: 'Orbitron', sans-serif;      /* Headings, logos */
+  --font-body: 'Inter', sans-serif;            /* Paragraphs, UI */
+  --font-mono: 'JetBrains Mono', monospace;    /* Code, stats, latency */
+
+  /* ========== TYPE SCALE ========== */
+  --text-xs: 0.75rem;     /* 12px - Labels */
+  --text-sm: 0.875rem;    /* 14px - Small body */
+  --text-base: 1rem;      /* 16px - Body */
+  --text-lg: 1.125rem;    /* 18px - Lead */
+  --text-xl: 1.25rem;     /* 20px - Subheadings */
+  --text-2xl: 1.5rem;     /* 24px - H3 */
+  --text-3xl: 1.875rem;   /* 30px - H2 */
+  --text-4xl: 2.25rem;    /* 36px - H1 */
+  --text-5xl: 3rem;       /* 48px - Hero */
+  --text-6xl: 3.75rem;    /* 60px - Display */
+
+  /* ========== FONT WEIGHTS ========== */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-black: 900;
+
+  /* ========== SPACING SCALE ========== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  /* ========== BORDER RADIUS ========== */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ========== SHADOWS ========== */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.6);
+
+  /* ========== ANIMATION EASINGS ========== */
+  --ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-enter: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0.0, 1, 1);
+
+  /* ========== ANIMATION DURATIONS ========== */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  /* ========== GRADIENTS ========== */
+  --gradient-hero: linear-gradient(135deg,
+    rgba(0, 255, 255, 0.2) 0%,
+    rgba(157, 0, 255, 0.2) 100%);
+
+  --gradient-cta: linear-gradient(90deg,
+    #FF4D00 0%,
+    #FF00FF 100%);
+
+  --gradient-hover: linear-gradient(90deg,
+    #00FFFF 0%,
+    #9D00FF 100%);
+
+  --gradient-ambient:
+    radial-gradient(ellipse at top left, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(255, 0, 255, 0.1) 0%, transparent 50%);
+
+  /* ========== LAYOUT ========== */
+  --container-max: 1440px;
+  --container-padding: 32px;
+  --navbar-height: 72px;
+
+  /* ========== Z-INDEX SCALE ========== */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+  --z-tooltip: 500;
+  --z-overlay: 1000;
+}
+
+/* ========== BREAKPOINTS (as CSS custom media - for reference) ========== */
+/* Mobile: 320px - 768px */
+/* Tablet: 769px - 1024px */
+/* Desktop: 1025px+ */
