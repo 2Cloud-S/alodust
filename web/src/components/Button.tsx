@@ -1,11 +1,12 @@
 import { ButtonHTMLAttributes, ReactNode } from 'react';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'ghost' | 'danger' | 'icon';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  fullWidth?: boolean;
 }
 
 export function Button({
@@ -14,6 +15,7 @@ export function Button({
   isLoading = false,
   leftIcon,
   rightIcon,
+  fullWidth = false,
   children,
   className = '',
   disabled,
@@ -22,10 +24,11 @@ export function Button({
   const baseClass = 'btn';
   const variantClass = `btn-${variant}`;
   const sizeClass = size !== 'md' ? `btn-${size}` : '';
+  const fullWidthClass = fullWidth ? 'btn-full-width' : '';
 
   return (
     <button
-      className={`${baseClass} ${variantClass} ${sizeClass} ${className}`.trim()}
+      className={`${baseClass} ${variantClass} ${sizeClass} ${fullWidthClass} ${className}`.trim()}
       disabled={disabled || isLoading}
       {...props}
     >

@@ -43,3 +43,12 @@ coverage/
 
 # Misc
 *.local
+
+#guides
+user_guide.md
+design_document.md
+implementation_plan.md
+simplified_setup_guide.md
+
+#junk
+nul

@@ -5,6 +5,7 @@ export { Input } from './Input';
 export { Avatar } from './Avatar';
 export { Badge } from './Badge';
 export { Logo } from './Logo';
+export { Chat } from './Chat';
 
 // Layout Components
 export { Container } from './layout/Container';

@@ -1,0 +1,113 @@
+/* ============================================
+   AUTH PAGES STYLES
+   Login & Signup pages
+   ============================================ */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+  position: relative;
+  z-index: 1;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.auth-logo {
+  display: inline-block;
+  margin-bottom: var(--space-2xl);
+  text-decoration: none;
+}
+
+.auth-card {
+  background: var(--carbon-gray);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-cta);
+}
+
+.auth-footer {
+  margin-top: var(--space-lg);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* Clerk form overrides */
+.cl-rootBox {
+  width: 100%;
+}
+
+.cl-card {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.cl-headerTitle {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 2px !important;
+  color: var(--text-primary) !important;
+}
+
+.cl-headerSubtitle {
+  color: var(--text-secondary) !important;
+}
+
+.cl-formButtonPrimary {
+  background: var(--gradient-cta) !important;
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background: var(--gradient-hover) !important;
+}
+
+.cl-formFieldInput {
+  background: var(--void-black) !important;
+  border: 1px solid rgba(0, 255, 255, 0.3) !important;
+  color: var(--text-primary) !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 0 0 10px var(--glow-cyan) !important;
+}
+
+.cl-footerActionLink {
+  color: var(--neon-cyan) !important;
+}
+
+.cl-footerActionLink:hover {
+  color: var(--neon-magenta) !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background: var(--slate-gray) !important;
+  border: 1px solid rgba(0, 255, 255, 0.2) !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background: var(--steel-gray) !important;
+  border-color: var(--neon-cyan) !important;
+}

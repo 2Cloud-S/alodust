@@ -98,6 +98,11 @@
   box-shadow: none !important;
 }
 
+/* Full Width */
+.btn-full-width {
+  width: 100%;
+}
+
 /* Icon Button */
 .btn-icon {
   padding: var(--space-sm);
