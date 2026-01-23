@@ -3,12 +3,13 @@ import { InputHTMLAttributes, ReactNode, forwardRef } from 'react';
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  helper?: string;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, leftIcon, rightIcon, className = '', ...props }, ref) => {
+  ({ label, error, helper, leftIcon, rightIcon, className = '', ...props }, ref) => {
     const inputClasses = [
       'input',
       leftIcon ? 'has-icon-left' : '',
@@ -28,6 +29,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {rightIcon && <span className="input-icon-right">{rightIcon}</span>}
         </div>
         {error && <span className="input-error-text">{error}</span>}
+        {helper && !error && <span className="input-helper-text">{helper}</span>}
       </div>
     );
   }

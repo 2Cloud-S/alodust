@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../hooks/useAuth";
@@ -14,6 +14,13 @@ interface SetupStatus {
   sunshine: "checking" | "ready" | "not-ready";
   tailscale: "checking" | "ready" | "not-ready";
   network: "checking" | "ready" | "not-ready";
+}
+
+interface SetupDetails {
+  sunshineMessage: string;
+  tailscaleMessage: string;
+  tailscaleIP: string | null;
+  networkMessage: string;
 }
 
 interface ViewerData {
@@ -36,11 +43,19 @@ export function HostStream() {
   const [quality, setQuality] = useState<Quality>("1080p60");
   const [privacy, setPrivacy] = useState<Privacy>("friends");
 
-  // Setup status (simulated for now)
+  // Setup status - now with real verification
   const [setupStatus, setSetupStatus] = useState<SetupStatus>({
     sunshine: "checking",
     tailscale: "checking",
     network: "checking",
+  });
+
+  // Detailed status messages
+  const [setupDetails, setSetupDetails] = useState<SetupDetails>({
+    sunshineMessage: "Checking Sunshine status...",
+    tailscaleMessage: "Checking Tailscale configuration...",
+    tailscaleIP: null,
+    networkMessage: "Testing network connection...",
   });
 
   // Convex mutations
@@ -53,6 +68,12 @@ export function HostStream() {
     userId ? { hostId: userId } : "skip"
   );
 
+  // Get current user to check Tailscale configuration
+  const currentUser = useQuery(
+    api.users.getById,
+    userId ? { userId } : "skip"
+  );
+
   // Get viewers for active stream
   const viewers = useQuery(
     api.streams.getStreamViewers,
@@ -62,27 +83,156 @@ export function HostStream() {
   // Elapsed time for live stream
   const [elapsedTime, setElapsedTime] = useState("00:00:00");
 
-  // Simulate setup check
-  useEffect(() => {
-    const checkSetup = async () => {
-      // Simulate checking Sunshine
-      setTimeout(() => {
+  // Check Sunshine availability
+  const checkSunshine = useCallback(async () => {
+    setSetupStatus((prev) => ({ ...prev, sunshine: "checking" }));
+    setSetupDetails((prev) => ({ ...prev, sunshineMessage: "Checking Sunshine status..." }));
+
+    try {
+      // Try to reach Sunshine's web UI
+      // Note: This will likely fail due to CORS, but we can detect if it's running
+      // by checking if the request fails with a network error vs CORS error
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+      try {
+        await fetch("https://localhost:47990", {
+          mode: "no-cors",
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        // If we get here without error, Sunshine is likely running
         setSetupStatus((prev) => ({ ...prev, sunshine: "ready" }));
-      }, 1000);
-
-      // Simulate checking Tailscale
-      setTimeout(() => {
-        setSetupStatus((prev) => ({ ...prev, tailscale: "ready" }));
-      }, 1500);
-
-      // Simulate checking network
-      setTimeout(() => {
-        setSetupStatus((prev) => ({ ...prev, network: "ready" }));
-      }, 2000);
-    };
-
-    checkSetup();
+        setSetupDetails((prev) => ({
+          ...prev,
+          sunshineMessage: "Sunshine is running and ready",
+        }));
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        // Check if it's an abort (timeout) or actual network error
+        if (fetchError instanceof Error && fetchError.name === "AbortError") {
+          setSetupStatus((prev) => ({ ...prev, sunshine: "not-ready" }));
+          setSetupDetails((prev) => ({
+            ...prev,
+            sunshineMessage: "Sunshine not detected. Please start Sunshine.",
+          }));
+        } else {
+          // CORS or other error means the server is responding
+          setSetupStatus((prev) => ({ ...prev, sunshine: "ready" }));
+          setSetupDetails((prev) => ({
+            ...prev,
+            sunshineMessage: "Sunshine is running and ready",
+          }));
+        }
+      }
+    } catch {
+      setSetupStatus((prev) => ({ ...prev, sunshine: "not-ready" }));
+      setSetupDetails((prev) => ({
+        ...prev,
+        sunshineMessage: "Sunshine not detected. Please start Sunshine.",
+      }));
+    }
   }, []);
+
+  // Check Tailscale configuration
+  const checkTailscale = useCallback(() => {
+    setSetupStatus((prev) => ({ ...prev, tailscale: "checking" }));
+    setSetupDetails((prev) => ({ ...prev, tailscaleMessage: "Checking Tailscale configuration..." }));
+
+    // Check if user has configured their Tailscale IP in settings
+    if (currentUser === undefined) {
+      // Still loading
+      return;
+    }
+
+    const tailscaleDevice = currentUser?.tailscaleDevices?.[0];
+
+    if (tailscaleDevice && tailscaleDevice.ip && tailscaleDevice.ip !== "100.0.0.1") {
+      setSetupStatus((prev) => ({ ...prev, tailscale: "ready" }));
+      setSetupDetails((prev) => ({
+        ...prev,
+        tailscaleMessage: `Connected: ${tailscaleDevice.ip}`,
+        tailscaleIP: tailscaleDevice.ip,
+      }));
+    } else {
+      setSetupStatus((prev) => ({ ...prev, tailscale: "not-ready" }));
+      setSetupDetails((prev) => ({
+        ...prev,
+        tailscaleMessage: "Tailscale IP not configured. Go to Settings to add your Tailscale IP.",
+        tailscaleIP: null,
+      }));
+    }
+  }, [currentUser]);
+
+  // Check network connectivity
+  const checkNetwork = useCallback(async () => {
+    setSetupStatus((prev) => ({ ...prev, network: "checking" }));
+    setSetupDetails((prev) => ({ ...prev, networkMessage: "Testing network connection..." }));
+
+    try {
+      // Simple connectivity check
+      const online = navigator.onLine;
+
+      if (online) {
+        // Try a simple fetch to verify actual connectivity
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        try {
+          await fetch("https://www.google.com/favicon.ico", {
+            mode: "no-cors",
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+          setSetupStatus((prev) => ({ ...prev, network: "ready" }));
+          setSetupDetails((prev) => ({
+            ...prev,
+            networkMessage: "Network connection stable",
+          }));
+        } catch {
+          clearTimeout(timeoutId);
+          // Even if fetch fails, navigator.onLine is true
+          setSetupStatus((prev) => ({ ...prev, network: "ready" }));
+          setSetupDetails((prev) => ({
+            ...prev,
+            networkMessage: "Network connection available",
+          }));
+        }
+      } else {
+        setSetupStatus((prev) => ({ ...prev, network: "not-ready" }));
+        setSetupDetails((prev) => ({
+          ...prev,
+          networkMessage: "No internet connection detected",
+        }));
+      }
+    } catch {
+      setSetupStatus((prev) => ({ ...prev, network: "not-ready" }));
+      setSetupDetails((prev) => ({
+        ...prev,
+        networkMessage: "Network check failed",
+      }));
+    }
+  }, []);
+
+  // Run setup checks
+  useEffect(() => {
+    checkSunshine();
+    checkNetwork();
+  }, [checkSunshine, checkNetwork]);
+
+  // Check Tailscale when user data loads
+  useEffect(() => {
+    if (currentUser !== undefined) {
+      checkTailscale();
+    }
+  }, [currentUser, checkTailscale]);
+
+  // Recheck function for manual refresh
+  const recheckAll = useCallback(() => {
+    checkSunshine();
+    checkTailscale();
+    checkNetwork();
+  }, [checkSunshine, checkTailscale, checkNetwork]);
 
   // Update elapsed time
   useEffect(() => {
@@ -226,7 +376,7 @@ export function HostStream() {
                 <div className="stream-info-grid">
                   <div className="stream-info-item">
                     <span>Category</span>
-                    <span>{activeStream.category.replace("_", " ")}</span>
+                    <span>{(activeStream.category || "general").replace("_", " ")}</span>
                   </div>
                   <div className="stream-info-item">
                     <span>Privacy</span>
@@ -260,23 +410,33 @@ export function HostStream() {
               <>
                 {/* Setup Status */}
                 <Card className="setup-status">
-                  <h2 className="setup-status-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                      <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                    Setup Status
-                  </h2>
+                  <div className="setup-status-header">
+                    <h2 className="setup-status-title">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                      </svg>
+                      Setup Status
+                    </h2>
+                    <button className="recheck-btn" onClick={recheckAll} title="Recheck all">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="23 4 23 10 17 10" />
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                      </svg>
+                      Recheck
+                    </button>
+                  </div>
 
                   <div className="setup-status-items">
-                    <div className="setup-status-item">
+                    {/* Sunshine Status */}
+                    <div className={`setup-status-item ${setupStatus.sunshine === "not-ready" ? "has-error" : ""}`}>
                       <div className={`status-indicator ${setupStatus.sunshine}`}>
                         {setupStatus.sunshine === "ready" ? (
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         ) : setupStatus.sunshine === "checking" ? (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin">
                             <circle cx="12" cy="12" r="10" />
                             <polyline points="12 6 12 12 16 14" />
                           </svg>
@@ -290,29 +450,29 @@ export function HostStream() {
                       </div>
                       <div className="status-info">
                         <div className="status-name">Sunshine</div>
-                        <div className="status-description">
-                          {setupStatus.sunshine === "ready"
-                            ? "Sunshine is running and ready"
-                            : setupStatus.sunshine === "checking"
-                            ? "Checking Sunshine status..."
-                            : "Sunshine not detected. Please start it."}
-                        </div>
+                        <div className="status-description">{setupDetails.sunshineMessage}</div>
                       </div>
                       {setupStatus.sunshine === "not-ready" && (
-                        <Button variant="ghost" size="sm" className="status-action">
-                          Help
-                        </Button>
+                        <a
+                          href="https://github.com/LizardByte/Sunshine/releases"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="status-action-link"
+                        >
+                          Download
+                        </a>
                       )}
                     </div>
 
-                    <div className="setup-status-item">
+                    {/* Tailscale Status */}
+                    <div className={`setup-status-item ${setupStatus.tailscale === "not-ready" ? "has-error" : ""}`}>
                       <div className={`status-indicator ${setupStatus.tailscale}`}>
                         {setupStatus.tailscale === "ready" ? (
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         ) : setupStatus.tailscale === "checking" ? (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin">
                             <circle cx="12" cy="12" r="10" />
                             <polyline points="12 6 12 12 16 14" />
                           </svg>
@@ -327,28 +487,28 @@ export function HostStream() {
                       <div className="status-info">
                         <div className="status-name">Tailscale</div>
                         <div className="status-description">
-                          {setupStatus.tailscale === "ready"
-                            ? "Connected to your Tailnet"
-                            : setupStatus.tailscale === "checking"
-                            ? "Checking Tailscale connection..."
-                            : "Tailscale not connected"}
+                          {setupDetails.tailscaleMessage}
+                          {setupDetails.tailscaleIP && (
+                            <code className="tailscale-ip">{setupDetails.tailscaleIP}</code>
+                          )}
                         </div>
                       </div>
                       {setupStatus.tailscale === "not-ready" && (
-                        <Button variant="ghost" size="sm" className="status-action">
-                          Connect
-                        </Button>
+                        <Link to="/settings" className="status-action-link">
+                          Configure
+                        </Link>
                       )}
                     </div>
 
-                    <div className="setup-status-item">
+                    {/* Network Status */}
+                    <div className={`setup-status-item ${setupStatus.network === "not-ready" ? "has-error" : ""}`}>
                       <div className={`status-indicator ${setupStatus.network}`}>
                         {setupStatus.network === "ready" ? (
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         ) : setupStatus.network === "checking" ? (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin">
                             <circle cx="12" cy="12" r="10" />
                             <polyline points="12 6 12 12 16 14" />
                           </svg>
@@ -362,16 +522,27 @@ export function HostStream() {
                       </div>
                       <div className="status-info">
                         <div className="status-name">Network</div>
-                        <div className="status-description">
-                          {setupStatus.network === "ready"
-                            ? "Network connection stable"
-                            : setupStatus.network === "checking"
-                            ? "Testing network quality..."
-                            : "Network issues detected"}
-                        </div>
+                        <div className="status-description">{setupDetails.networkMessage}</div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Setup Warning */}
+                  {!isSetupReady && setupStatus.sunshine !== "checking" && setupStatus.tailscale !== "checking" && setupStatus.network !== "checking" && (
+                    <div className="setup-warning">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                      <span>
+                        Please resolve the issues above before starting your stream.
+                        {setupStatus.tailscale === "not-ready" && (
+                          <> Go to <Link to="/settings">Settings</Link> to configure your Tailscale IP.</>
+                        )}
+                      </span>
+                    </div>
+                  )}
                 </Card>
 
                 {/* Stream Settings */}

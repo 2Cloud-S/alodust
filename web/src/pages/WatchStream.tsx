@@ -47,7 +47,6 @@ export function WatchStream() {
     return hidden !== "true";
   });
   const [dontShowAgain, setDontShowAgain] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
 
   // Handle dismissing the connection guide
   const dismissGuide = useCallback((remember: boolean = false) => {
@@ -55,7 +54,6 @@ export function WatchStream() {
       localStorage.setItem(HIDE_CONNECTION_GUIDE_KEY, "true");
     }
     setShowConnectionGuide(false);
-    setIsConnected(true);
   }, [dontShowAgain]);
 
   // Show guide again (for help button)
@@ -293,46 +291,202 @@ export function WatchStream() {
                       </p>
                     </div>
 
-                    <div className="guide-steps">
-                      <div className="guide-step">
-                        <span className="step-number">1</span>
-                        <div className="step-content">
-                          <h4>Install Moonlight</h4>
-                          <p>Download from <a href="https://moonlight-stream.org/" target="_blank" rel="noopener noreferrer">moonlight-stream.org</a></p>
-                        </div>
-                      </div>
+                    {/* Guide Sections with Tabs */}
+                    <div className="guide-tabs">
+                      <button className="guide-tab active" data-tab="quick">Quick Connect</button>
+                      <button className="guide-tab" data-tab="tailscale">Tailscale Setup</button>
+                      <button className="guide-tab" data-tab="moonlight">Moonlight Setup</button>
+                    </div>
 
-                      <div className="guide-step">
-                        <span className="step-number">2</span>
-                        <div className="step-content">
-                          <h4>Connect to Tailscale</h4>
-                          <p>Make sure you're on the same Tailscale network as the host</p>
+                    {/* Quick Connect - For returning users */}
+                    <div className="guide-section" id="quick-connect">
+                      <div className="guide-steps">
+                        <div className="guide-step">
+                          <span className="step-number">1</span>
+                          <div className="step-content">
+                            <h4>Open Tailscale</h4>
+                            <p>Make sure Tailscale is connected (check system tray icon)</p>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="guide-step">
-                        <span className="step-number">3</span>
-                        <div className="step-content">
-                          <h4>Add Host in Moonlight</h4>
-                          <p>Use this IP address:</p>
-                          <div className="guide-ip-box" onClick={copyIP}>
-                            <code>{stream.tailscaleIP}</code>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                            </svg>
+                        <div className="guide-step">
+                          <span className="step-number">2</span>
+                          <div className="step-content">
+                            <h4>Open Moonlight & Connect</h4>
+                            <p>Host's Tailscale IP:</p>
+                            <div className="guide-ip-box" onClick={copyIP}>
+                              <code>{stream.tailscaleIP}</code>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                              </svg>
+                            </div>
+                            {stream.tailscaleIP === "100.0.0.1" && (
+                              <p className="ip-warning">
+                                ⚠️ Host hasn't configured their Tailscale IP yet. Ask them to update it in Settings.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="guide-step">
+                          <span className="step-number">3</span>
+                          <div className="step-content">
+                            <h4>Select Desktop</h4>
+                            <p>Choose "Desktop" from the host's app list to start watching</p>
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      <div className="guide-step">
-                        <span className="step-number">4</span>
-                        <div className="step-content">
-                          <h4>Start Streaming</h4>
-                          <p>Select "Desktop" from the host's app list</p>
+                    {/* Full Tailscale Setup Guide */}
+                    <details className="guide-details">
+                      <summary className="guide-details-summary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        First Time? Complete Tailscale Setup
+                      </summary>
+                      <div className="guide-details-content">
+                        <h4>What is Tailscale?</h4>
+                        <p>Tailscale creates a secure private network between your devices. It's like being on the same WiFi, but works over the internet too!</p>
+
+                        <div className="setup-section">
+                          <h5>Step 1: Download Tailscale</h5>
+                          <p>Get the app for your device:</p>
+                          <div className="download-links">
+                            <a href="https://tailscale.com/download/windows" target="_blank" rel="noopener noreferrer" className="download-link">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M0 3.449L9.75 2.1v9.45H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/>
+                              </svg>
+                              Windows
+                            </a>
+                            <a href="https://tailscale.com/download/mac" target="_blank" rel="noopener noreferrer" className="download-link">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                              </svg>
+                              macOS
+                            </a>
+                            <a href="https://tailscale.com/download/ios" target="_blank" rel="noopener noreferrer" className="download-link">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                              </svg>
+                              iOS
+                            </a>
+                            <a href="https://tailscale.com/download/android" target="_blank" rel="noopener noreferrer" className="download-link">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17.523 2.047l1.41 1.41-2.59 2.59c1.68 1.1 2.8 2.91 3.04 4.95h2v2h-2v1h2v2h-2c-.24 2.04-1.36 3.85-3.04 4.95l2.59 2.59-1.41 1.41-2.59-2.59c-1.1.68-2.4 1.07-3.77 1.07s-2.67-.39-3.77-1.07l-2.59 2.59-1.41-1.41 2.59-2.59C3.47 17.85 2.35 16.04 2.11 14h-2v-2h2v-1h-2V9h2c.24-2.04 1.36-3.85 3.04-4.95L2.56 1.46l1.41-1.41 2.59 2.59c1.1-.68 2.4-1.07 3.77-1.07s2.67.39 3.77 1.07l2.59-2.59zM12 5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/>
+                              </svg>
+                              Android
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="setup-section">
+                          <h5>Step 2: Sign In to Tailscale</h5>
+                          <p>Open Tailscale and sign in with Google, Microsoft, or GitHub.</p>
+                          <p className="important-note">
+                            <strong>Important:</strong> You must sign in with the <strong>same account</strong> the host is using,
+                            OR have the host share their Tailnet with you.
+                          </p>
+                        </div>
+
+                        <div className="setup-section">
+                          <h5>Step 3: Connect</h5>
+                          <p>Click "Connect" in the Tailscale app. You'll see a connected status and your Tailscale IP.</p>
+                          <p>Once connected, you can reach the host's PC directly using their Tailscale IP: <code>{stream.tailscaleIP}</code></p>
+                        </div>
+
+                        <div className="setup-section sharing-section">
+                          <h5>Alternative: Get Invited to Host's Tailnet</h5>
+                          <p>If the host wants to share without you using the same account:</p>
+                          <ol>
+                            <li>Host goes to <a href="https://login.tailscale.com/admin/users" target="_blank" rel="noopener noreferrer">Tailscale Admin Console</a></li>
+                            <li>Host clicks "Invite users" and enters your email</li>
+                            <li>You'll receive an invite email - accept it!</li>
+                          </ol>
                         </div>
                       </div>
-                    </div>
+                    </details>
+
+                    {/* Full Moonlight Setup Guide */}
+                    <details className="guide-details">
+                      <summary className="guide-details-summary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                        </svg>
+                        First Time? Complete Moonlight Setup
+                      </summary>
+                      <div className="guide-details-content">
+                        <h4>What is Moonlight?</h4>
+                        <p>Moonlight is a game streaming client that connects to Sunshine (running on the host's PC) to receive the video stream.</p>
+
+                        <div className="setup-section">
+                          <h5>Step 1: Download Moonlight</h5>
+                          <p>Get Moonlight for your device:</p>
+                          <div className="download-links">
+                            <a href="https://github.com/moonlight-stream/moonlight-qt/releases" target="_blank" rel="noopener noreferrer" className="download-link">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M0 3.449L9.75 2.1v9.45H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/>
+                              </svg>
+                              Windows
+                            </a>
+                            <a href="https://apps.apple.com/app/moonlight-game-streaming/id1000551566" target="_blank" rel="noopener noreferrer" className="download-link">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                              </svg>
+                              iOS / macOS
+                            </a>
+                            <a href="https://play.google.com/store/apps/details?id=com.limelight" target="_blank" rel="noopener noreferrer" className="download-link">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 20.5v-17c0-.83.67-1.5 1.5-1.5.4 0 .77.15 1.06.44L19.5 12l-13.94 9.56c-.29.19-.62.44-1.06.44-.83 0-1.5-.67-1.5-1.5z"/>
+                              </svg>
+                              Android
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="setup-section">
+                          <h5>Step 2: Add Host Computer</h5>
+                          <ol>
+                            <li>Open Moonlight</li>
+                            <li>Click the <strong>+</strong> button or "Add Host"</li>
+                            <li>Enter the host's Tailscale IP: <code onClick={copyIP} className="clickable-code">{stream.tailscaleIP}</code></li>
+                            <li>Click "OK" or "Add"</li>
+                          </ol>
+                        </div>
+
+                        <div className="setup-section">
+                          <h5>Step 3: Pair with Host (First Time Only)</h5>
+                          <p>When connecting for the first time:</p>
+                          <ol>
+                            <li>Moonlight will show a <strong>4-digit PIN</strong></li>
+                            <li>The host needs to enter this PIN in Sunshine</li>
+                            <li>Host opens Sunshine web UI (localhost:47990) and enters the PIN</li>
+                            <li>Once paired, you won't need to do this again!</li>
+                          </ol>
+                        </div>
+
+                        <div className="setup-section">
+                          <h5>Step 4: Start Watching</h5>
+                          <ol>
+                            <li>Click on the host computer in Moonlight</li>
+                            <li>Select "Desktop" from the app list</li>
+                            <li>Enjoy the stream!</li>
+                          </ol>
+                        </div>
+
+                        <div className="setup-section troubleshoot-section">
+                          <h5>Troubleshooting</h5>
+                          <ul>
+                            <li><strong>Can't find host?</strong> Make sure both devices have Tailscale connected</li>
+                            <li><strong>Connection failed?</strong> Host should check if Sunshine is running (tray icon)</li>
+                            <li><strong>Black screen?</strong> Try lowering the stream quality in Moonlight settings</li>
+                            <li><strong>High latency?</strong> Both devices should have good internet connections</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </details>
 
                     <div className="guide-actions">
                       <button className="guide-connect-btn" onClick={openMoonlight}>

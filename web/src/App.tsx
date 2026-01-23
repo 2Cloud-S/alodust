@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ConvexClientProvider, ClerkProvider } from "./providers";
-import { Landing, Login, Signup, Lobby, HostStream, WatchStream } from "./pages";
+import { Landing, Login, Signup, Lobby, HostStream, WatchStream, Settings, Privacy } from "./pages";
 import "./styles/index.css";
 
 function AppRoutes() {
@@ -15,11 +15,12 @@ function AppRoutes() {
       <Route path="/lobby" element={<Lobby />} />
       <Route path="/stream/new" element={<HostStream />} />
       <Route path="/watch/:streamId" element={<WatchStream />} />
+      <Route path="/settings" element={<Settings />} />
 
       {/* Placeholder routes */}
       <Route path="/features" element={<ComingSoon title="Features" />} />
       <Route path="/docs" element={<ComingSoon title="Documentation" />} />
-      <Route path="/privacy" element={<ComingSoon title="Privacy Policy" />} />
+      <Route path="/privacy" element={<Privacy />} />
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />

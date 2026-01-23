@@ -4,3 +4,5 @@ export { Signup } from './Signup';
 export { Lobby } from './Lobby';
 export { HostStream } from './HostStream';
 export { WatchStream } from './WatchStream';
+export { Settings } from './Settings';
+export { Privacy } from './Privacy';

@@ -57,7 +57,7 @@ export function Landing() {
                 </Button>
               </Link>
               <a
-                href="https://github.com/alodust/alodust"
+                href="https://github.com/2Cloud-S/alodust"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -346,7 +346,7 @@ export function Landing() {
               <p className="footer-tagline">Watch parties with zero latency.</p>
             </div>
             <div className="footer-links">
-              <a href="https://github.com/alodust/alodust" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/2Cloud-S/alodust" target="_blank" rel="noopener noreferrer">
                 GitHub
               </a>
               <a href="/docs">Documentation</a>
