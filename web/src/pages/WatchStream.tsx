@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -6,6 +6,9 @@ import { Id } from "../../convex/_generated/dataModel";
 import { useAuth } from "../hooks/useAuth";
 import { TronBackground, Navbar, Card, Button, Avatar, Badge } from "../components";
 import "./WatchStream.css";
+
+// LocalStorage key for hiding connection guide
+const HIDE_CONNECTION_GUIDE_KEY = "alodust_hide_connection_guide";
 
 interface ChatMessage {
   _id: string;
@@ -37,6 +40,28 @@ export function WatchStream() {
   // Chat state
   const [chatMessage, setChatMessage] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Connection guide state - check localStorage for returning users
+  const [showConnectionGuide, setShowConnectionGuide] = useState(() => {
+    const hidden = localStorage.getItem(HIDE_CONNECTION_GUIDE_KEY);
+    return hidden !== "true";
+  });
+  const [dontShowAgain, setDontShowAgain] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+
+  // Handle dismissing the connection guide
+  const dismissGuide = useCallback((remember: boolean = false) => {
+    if (remember || dontShowAgain) {
+      localStorage.setItem(HIDE_CONNECTION_GUIDE_KEY, "true");
+    }
+    setShowConnectionGuide(false);
+    setIsConnected(true);
+  }, [dontShowAgain]);
+
+  // Show guide again (for help button)
+  const showGuide = useCallback(() => {
+    setShowConnectionGuide(true);
+  }, []);
 
   // Convex queries
   const stream = useQuery(
@@ -122,6 +147,19 @@ export function WatchStream() {
     // Format: moonlight://[ip]:[port]
     const moonlightUrl = `moonlight://${stream.tailscaleIP}:${stream.sunshinePort || 47989}`;
     window.open(moonlightUrl, "_blank");
+
+    // Mark as connected and dismiss guide
+    dismissGuide();
+  };
+
+  // Copy IP to clipboard
+  const copyIP = async () => {
+    if (!stream) return;
+    try {
+      await navigator.clipboard.writeText(stream.tailscaleIP);
+    } catch (error) {
+      console.error("Failed to copy IP:", error);
+    }
   };
 
   const formatTime = (timestamp: number) => {
@@ -181,59 +219,145 @@ export function WatchStream() {
             {/* Stream Player Area */}
             <Card className="stream-player-card" glow="cyan">
               <div className="stream-player-area">
-                <div className="moonlight-connect">
-                  <svg
-                    className="moonlight-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                  </svg>
-                  <h2>Connect with Moonlight</h2>
-                  <p>
-                    This stream uses Moonlight for zero-latency viewing.
-                    Click the button below to open the stream in Moonlight.
-                  </p>
-
-                  <div className="connection-steps">
-                    <div className="connection-step">
-                      <span className="step-number">1</span>
-                      <span className="step-text">
-                        Make sure Moonlight is installed
-                      </span>
-                    </div>
-                    <div className="connection-step">
-                      <span className="step-number">2</span>
-                      <span className="step-text">
-                        Ensure you're connected to Tailscale
-                      </span>
-                    </div>
-                    <div className="connection-step">
-                      <span className="step-number">3</span>
-                      <span className="step-text">
-                        Click below to launch the stream
-                      </span>
+                {/* Connected State - Minimal UI */}
+                <div className="stream-connected-view">
+                  <div className="connected-status">
+                    <svg
+                      className="connected-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                    <div className="connected-info">
+                      <h3>Streaming via Moonlight</h3>
+                      <p>Connect using the IP below or click to open Moonlight</p>
                     </div>
                   </div>
 
-                  <button className="connect-button" onClick={openMoonlight}>
-                    Open in Moonlight
-                  </button>
+                  <div className="quick-connect-bar">
+                    <div className="ip-display" onClick={copyIP} title="Click to copy">
+                      <span className="ip-label">Host IP:</span>
+                      <code className="ip-value">{stream.tailscaleIP}</code>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                    </div>
 
-                  <p className="moonlight-help">
-                    Don't have Moonlight?{" "}
-                    <a
-                      href="https://moonlight-stream.org/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Download here
-                    </a>
-                  </p>
+                    <button className="quick-connect-btn" onClick={openMoonlight}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                      </svg>
+                      Open Moonlight
+                    </button>
+
+                    <button className="help-btn" onClick={showGuide} title="Connection Help">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              {/* Connection Guide Modal - for first-time or help */}
+              {showConnectionGuide && (
+                <div className="connection-guide-overlay" onClick={() => dismissGuide()}>
+                  <div className="connection-guide-modal" onClick={(e) => e.stopPropagation()}>
+                    <button className="guide-close-btn" onClick={() => dismissGuide()}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+
+                    <div className="guide-header">
+                      <svg
+                        className="guide-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                      >
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                      </svg>
+                      <h2>Connect to Stream</h2>
+                      <p>
+                        {stream.host?.displayName || stream.host?.username} is streaming via Moonlight.
+                        Follow these steps to connect:
+                      </p>
+                    </div>
+
+                    <div className="guide-steps">
+                      <div className="guide-step">
+                        <span className="step-number">1</span>
+                        <div className="step-content">
+                          <h4>Install Moonlight</h4>
+                          <p>Download from <a href="https://moonlight-stream.org/" target="_blank" rel="noopener noreferrer">moonlight-stream.org</a></p>
+                        </div>
+                      </div>
+
+                      <div className="guide-step">
+                        <span className="step-number">2</span>
+                        <div className="step-content">
+                          <h4>Connect to Tailscale</h4>
+                          <p>Make sure you're on the same Tailscale network as the host</p>
+                        </div>
+                      </div>
+
+                      <div className="guide-step">
+                        <span className="step-number">3</span>
+                        <div className="step-content">
+                          <h4>Add Host in Moonlight</h4>
+                          <p>Use this IP address:</p>
+                          <div className="guide-ip-box" onClick={copyIP}>
+                            <code>{stream.tailscaleIP}</code>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="guide-step">
+                        <span className="step-number">4</span>
+                        <div className="step-content">
+                          <h4>Start Streaming</h4>
+                          <p>Select "Desktop" from the host's app list</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="guide-actions">
+                      <button className="guide-connect-btn" onClick={openMoonlight}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                        </svg>
+                        Open Moonlight App
+                      </button>
+
+                      <button className="guide-dismiss-btn" onClick={() => dismissGuide()}>
+                        I'm Connected
+                      </button>
+                    </div>
+
+                    <label className="guide-remember">
+                      <input
+                        type="checkbox"
+                        checked={dontShowAgain}
+                        onChange={(e) => setDontShowAgain(e.target.checked)}
+                      />
+                      <span>Don't show this again</span>
+                    </label>
+                  </div>
+                </div>
+              )}
 
               <div className="stream-info-bar">
                 <div className="stream-host-info">
