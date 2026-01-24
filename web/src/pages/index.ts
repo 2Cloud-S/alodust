@@ -7,3 +7,6 @@ export { WatchStream } from './WatchStream';
 export { Settings } from './Settings';
 export { Privacy } from './Privacy';
 export { AcceptInvite } from './AcceptInvite';
+export { DiscordCallback } from './DiscordCallback';
+export { SteamCallback } from './SteamCallback';
+export { ImportFriends } from './ImportFriends';

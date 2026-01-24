@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ConvexClientProvider, ClerkProvider } from "./providers";
-import { Landing, Login, Signup, Lobby, HostStream, WatchStream, Settings, Privacy, AcceptInvite } from "./pages";
+import { Landing, Login, Signup, Lobby, HostStream, WatchStream, Settings, Privacy, AcceptInvite, DiscordCallback, SteamCallback, ImportFriends } from "./pages";
 import "./styles/index.css";
 
 function AppRoutes() {
@@ -17,6 +17,9 @@ function AppRoutes() {
       <Route path="/stream/new" element={<HostStream />} />
       <Route path="/watch/:streamId" element={<WatchStream />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/auth/discord/callback" element={<DiscordCallback />} />
+      <Route path="/auth/steam/callback" element={<SteamCallback />} />
+      <Route path="/import/:source" element={<ImportFriends />} />
 
       {/* Placeholder routes */}
       <Route path="/features" element={<ComingSoon title="Features" />} />

@@ -1,0 +1,234 @@
+.import-friends-page {
+  min-height: 100vh;
+  padding-top: var(--navbar-height);
+}
+
+.import-header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+  padding: var(--space-xl) 0;
+}
+
+.import-title {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.import-subtitle {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.section-header h2 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--neon-cyan);
+  margin: 0;
+}
+
+.selection-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.action-btn {
+  padding: var(--space-xs) var(--space-md);
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid var(--neon-cyan);
+  border-radius: var(--radius-sm);
+  color: var(--neon-cyan);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.action-btn:hover {
+  background: rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.friends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(42, 42, 58, 0.5);
+  border: 2px solid rgba(0, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.friend-item:hover:not(.already-sent) {
+  border-color: var(--neon-cyan);
+  background: rgba(42, 42, 58, 0.8);
+}
+
+.friend-item.selected {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+.friend-item.already-sent {
+  opacity: 0.6;
+  cursor: not-allowed;
+  border-color: var(--carbon-gray);
+}
+
+.friend-checkbox {
+  flex-shrink: 0;
+}
+
+.friend-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkmark-sent {
+  color: var(--neon-green);
+  font-size: 1.25rem;
+}
+
+.friend-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-name {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.external-name {
+  font-size: var(--text-sm);
+  color: var(--carbon-gray);
+}
+
+.already-sent-label {
+  font-size: var(--text-xs);
+  color: var(--neon-green);
+  font-weight: 500;
+}
+
+.send-requests-section {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.matched-friends-card,
+.unmatched-friends-card {
+  margin-bottom: var(--space-xl);
+}
+
+.unmatched-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.unmatched-item {
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(42, 42, 58, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.unmatched-note {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-align: center;
+  margin-top: var(--space-lg);
+}
+
+.unmatched-note a {
+  color: var(--neon-cyan);
+  text-decoration: none;
+}
+
+.unmatched-note a:hover {
+  text-decoration: underline;
+}
+
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--text-secondary);
+}
+
+.loading-state svg {
+  width: 48px;
+  height: 48px;
+  color: var(--neon-cyan);
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--space-md);
+}
+
+.empty-state p {
+  margin-bottom: var(--space-lg);
+}
+
+.empty-state a {
+  color: var(--neon-cyan);
+  text-decoration: none;
+}
+
+.empty-state a:hover {
+  text-decoration: underline;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .friends-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .unmatched-grid {
+    grid-template-columns: 1fr;
+  }
+}

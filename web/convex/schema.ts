@@ -22,6 +22,26 @@ export default defineSchema({
       })
     ),
 
+    // Connected external accounts
+    connectedAccounts: v.optional(
+      v.object({
+        discord: v.optional(
+          v.object({
+            id: v.string(),
+            username: v.string(),
+            connectedAt: v.number(),
+          })
+        ),
+        steam: v.optional(
+          v.object({
+            id: v.string(),
+            personaName: v.string(),
+            connectedAt: v.number(),
+          })
+        ),
+      })
+    ),
+
     // Status
     status: v.union(
       v.literal("online"),
@@ -87,10 +107,12 @@ export default defineSchema({
     category: v.optional(v.string()),
 
     // Stream type
-    streamType: v.union(
-      v.literal("sunshine"),
-      v.literal("obs"),
-      v.literal("browser") // Future: WebRTC
+    streamType: v.optional(
+      v.union(
+        v.literal("sunshine"),
+        v.literal("obs"),
+        v.literal("browser") // Future: WebRTC
+      )
     ),
 
     // Stream settings
@@ -198,4 +220,17 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_unread", ["userId", "read"]),
+
+  // ========== IMPORTED FRIENDS ==========
+  importedFriends: defineTable({
+    userId: v.id("users"),
+    source: v.union(v.literal("discord"), v.literal("steam")),
+    externalId: v.string(),
+    externalUsername: v.string(),
+    matchedUserId: v.optional(v.id("users")),
+    imported: v.boolean(),
+    importedAt: v.number(),
+  })
+    .index("by_user_source", ["userId", "source"])
+    .index("by_external_id", ["source", "externalId"]),
 });
