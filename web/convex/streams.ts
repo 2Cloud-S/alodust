@@ -132,10 +132,15 @@ export const create = mutation({
     hostId: v.id("users"),
     title: v.string(),
     category: v.optional(v.string()),
+    streamType: v.union(
+      v.literal("sunshine"),
+      v.literal("obs"),
+      v.literal("browser")
+    ),
     quality: v.string(),
     bitrate: v.number(),
     tailscaleIP: v.string(),
-    sunshinePort: v.number(),
+    sunshinePort: v.optional(v.number()),
     privacy: v.union(
       v.literal("friends-only"),
       v.literal("invite-only"),
@@ -164,9 +169,21 @@ export const create = mutation({
     const inviteCode =
       args.privacy === "invite-only" ? generateInviteCode() : undefined;
 
+    // Generate OBS stream key if using OBS
+    const obsStreamKey =
+      args.streamType === "obs" ? generateInviteCode() + generateInviteCode() : undefined;
+
+    // Set OBS server URL if using OBS
+    const obsServerUrl =
+      args.streamType === "obs"
+        ? `rtmp://${args.tailscaleIP}:1935/live`
+        : undefined;
+
     // Create new stream
     const streamId = await ctx.db.insert("streams", {
       ...args,
+      obsStreamKey,
+      obsServerUrl,
       isLive: true,
       inviteCode,
       viewerCount: 0,
@@ -213,7 +230,7 @@ export const create = mutation({
       );
     }
 
-    return { streamId, inviteCode };
+    return { streamId, inviteCode, obsStreamKey };
   },
 });
 
@@ -439,6 +456,13 @@ export const createStream = mutation({
       v.literal("invite"),
       v.literal("public")
     ),
+    streamType: v.optional(
+      v.union(
+        v.literal("sunshine"),
+        v.literal("obs"),
+        v.literal("browser")
+      )
+    ),
   },
   handler: async (ctx, args) => {
     // End any existing stream from this host
@@ -472,15 +496,31 @@ export const createStream = mutation({
     const user = await ctx.db.get(args.hostId);
     const tailscaleDevice = user?.tailscaleDevices?.[0];
 
+    // Default to sunshine if not specified
+    const streamType = args.streamType || "sunshine";
+
+    // Generate OBS stream key if using OBS
+    const obsStreamKey =
+      streamType === "obs" ? generateInviteCode() + generateInviteCode() : undefined;
+
+    // Set OBS server URL if using OBS
+    const obsServerUrl =
+      streamType === "obs"
+        ? `rtmp://${tailscaleDevice?.ip || "100.0.0.1"}:1935/live`
+        : undefined;
+
     // Create new stream
     const streamId = await ctx.db.insert("streams", {
       hostId: args.hostId,
       title: args.title,
       category: args.category,
+      streamType,
       quality: args.quality,
       bitrate: 20000, // Default bitrate
       tailscaleIP: tailscaleDevice?.ip || "100.0.0.1",
-      sunshinePort: 47989, // Default Sunshine port
+      sunshinePort: streamType === "sunshine" ? 47989 : undefined,
+      obsStreamKey,
+      obsServerUrl,
       privacy: privacyMap[args.privacy],
       isLive: true,
       inviteCode,
@@ -526,7 +566,21 @@ export const createStream = mutation({
       );
     }
 
-    return { streamId, inviteCode };
+    return { streamId, inviteCode, obsStreamKey };
+  },
+});
+
+// Get OBS connection info
+export const getObsConnectionInfo = query({
+  args: { streamId: v.id("streams") },
+  handler: async (ctx, { streamId }) => {
+    const stream = await ctx.db.get(streamId);
+    if (!stream || stream.streamType !== "obs") return null;
+    return {
+      serverUrl: stream.obsServerUrl,
+      streamKey: stream.obsStreamKey,
+      tailscaleIP: stream.tailscaleIP,
+    };
   },
 });
 

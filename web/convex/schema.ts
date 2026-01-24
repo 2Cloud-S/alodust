@@ -86,13 +86,24 @@ export default defineSchema({
     title: v.string(),
     category: v.optional(v.string()),
 
+    // Stream type
+    streamType: v.union(
+      v.literal("sunshine"),
+      v.literal("obs"),
+      v.literal("browser") // Future: WebRTC
+    ),
+
     // Stream settings
     quality: v.string(), // "1080p60", "720p30", etc.
     bitrate: v.number(),
 
-    // Connection info
+    // Connection info (Sunshine)
     tailscaleIP: v.string(),
-    sunshinePort: v.number(),
+    sunshinePort: v.optional(v.number()),
+
+    // Connection info (OBS)
+    obsStreamKey: v.optional(v.string()),
+    obsServerUrl: v.optional(v.string()),
 
     // State
     isLive: v.boolean(),

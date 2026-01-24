@@ -8,16 +8,19 @@ import "./HostStream.css";
 
 type Privacy = "friends" | "invite" | "public";
 type Quality = "1080p60" | "1080p30" | "720p60" | "720p30" | "480p30";
-type Category = "gaming" | "movies" | "creative" | "just_chatting" | "music" | "sports" | "other";
+type Category = "gaming" | "movies_tv" | "presentations" | "browser_sharing" | "creative" | "just_chatting" | "music" | "other";
+type StreamType = "sunshine" | "obs" | "browser";
 
 interface SetupStatus {
   sunshine: "checking" | "ready" | "not-ready";
+  obs: "checking" | "ready" | "not-ready";
   tailscale: "checking" | "ready" | "not-ready";
   network: "checking" | "ready" | "not-ready";
 }
 
 interface SetupDetails {
   sunshineMessage: string;
+  obsMessage: string;
   tailscaleMessage: string;
   tailscaleIP: string | null;
   networkMessage: string;
@@ -42,10 +45,12 @@ export function HostStream() {
   const [category, setCategory] = useState<Category>("gaming");
   const [quality, setQuality] = useState<Quality>("1080p60");
   const [privacy, setPrivacy] = useState<Privacy>("friends");
+  const [streamType, setStreamType] = useState<StreamType>("sunshine");
 
   // Setup status - now with real verification
   const [setupStatus, setSetupStatus] = useState<SetupStatus>({
     sunshine: "checking",
+    obs: "checking",
     tailscale: "checking",
     network: "checking",
   });
@@ -53,6 +58,7 @@ export function HostStream() {
   // Detailed status messages
   const [setupDetails, setSetupDetails] = useState<SetupDetails>({
     sunshineMessage: "Checking Sunshine status...",
+    obsMessage: "Checking OBS Studio status...",
     tailscaleMessage: "Checking Tailscale configuration...",
     tailscaleIP: null,
     networkMessage: "Testing network connection...",
@@ -130,6 +136,52 @@ export function HostStream() {
       setSetupDetails((prev) => ({
         ...prev,
         sunshineMessage: "Sunshine not detected. Please start Sunshine.",
+      }));
+    }
+  }, []);
+
+  // Check OBS Studio availability
+  const checkOBS = useCallback(async () => {
+    setSetupStatus((prev) => ({ ...prev, obs: "checking" }));
+    setSetupDetails((prev) => ({ ...prev, obsMessage: "Checking OBS Studio status..." }));
+
+    try {
+      // Try to connect to OBS WebSocket (default port 4455)
+      const ws = new WebSocket("ws://localhost:4455");
+
+      ws.onopen = () => {
+        setSetupStatus((prev) => ({ ...prev, obs: "ready" }));
+        setSetupDetails((prev) => ({
+          ...prev,
+          obsMessage: "OBS Studio is running and ready",
+        }));
+        ws.close();
+      };
+
+      ws.onerror = () => {
+        setSetupStatus((prev) => ({ ...prev, obs: "not-ready" }));
+        setSetupDetails((prev) => ({
+          ...prev,
+          obsMessage: "OBS Studio not detected. Please start OBS with WebSocket plugin.",
+        }));
+      };
+
+      // Timeout after 3 seconds
+      setTimeout(() => {
+        if (ws.readyState === WebSocket.CONNECTING) {
+          ws.close();
+          setSetupStatus((prev) => ({ ...prev, obs: "not-ready" }));
+          setSetupDetails((prev) => ({
+            ...prev,
+            obsMessage: "OBS Studio not detected. Please start OBS with WebSocket plugin.",
+          }));
+        }
+      }, 3000);
+    } catch {
+      setSetupStatus((prev) => ({ ...prev, obs: "not-ready" }));
+      setSetupDetails((prev) => ({
+        ...prev,
+        obsMessage: "OBS Studio not detected. Please start OBS with WebSocket plugin.",
       }));
     }
   }, []);
@@ -214,11 +266,15 @@ export function HostStream() {
     }
   }, []);
 
-  // Run setup checks
+  // Run setup checks based on stream type
   useEffect(() => {
-    checkSunshine();
+    if (streamType === "sunshine") {
+      checkSunshine();
+    } else if (streamType === "obs") {
+      checkOBS();
+    }
     checkNetwork();
-  }, [checkSunshine, checkNetwork]);
+  }, [streamType, checkSunshine, checkOBS, checkNetwork]);
 
   // Check Tailscale when user data loads
   useEffect(() => {
@@ -229,10 +285,14 @@ export function HostStream() {
 
   // Recheck function for manual refresh
   const recheckAll = useCallback(() => {
-    checkSunshine();
+    if (streamType === "sunshine") {
+      checkSunshine();
+    } else if (streamType === "obs") {
+      checkOBS();
+    }
     checkTailscale();
     checkNetwork();
-  }, [checkSunshine, checkTailscale, checkNetwork]);
+  }, [streamType, checkSunshine, checkOBS, checkTailscale, checkNetwork]);
 
   // Update elapsed time
   useEffect(() => {
@@ -276,6 +336,7 @@ export function HostStream() {
         category,
         quality,
         privacy,
+        streamType,
       });
     } catch (error) {
       console.error("Failed to start stream:", error);
@@ -299,7 +360,7 @@ export function HostStream() {
   };
 
   const isSetupReady =
-    setupStatus.sunshine === "ready" &&
+    (streamType === "sunshine" ? setupStatus.sunshine === "ready" : setupStatus.obs === "ready") &&
     setupStatus.tailscale === "ready" &&
     setupStatus.network === "ready";
 
@@ -428,41 +489,80 @@ export function HostStream() {
                   </div>
 
                   <div className="setup-status-items">
-                    {/* Sunshine Status */}
-                    <div className={`setup-status-item ${setupStatus.sunshine === "not-ready" ? "has-error" : ""}`}>
-                      <div className={`status-indicator ${setupStatus.sunshine}`}>
-                        {setupStatus.sunshine === "ready" ? (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        ) : setupStatus.sunshine === "checking" ? (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin">
-                            <circle cx="12" cy="12" r="10" />
-                            <polyline points="12 6 12 12 16 14" />
-                          </svg>
-                        ) : (
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="15" y1="9" x2="9" y2="15" />
-                            <line x1="9" y1="9" x2="15" y2="15" />
-                          </svg>
+                    {/* Streaming Method Status - Conditional based on streamType */}
+                    {streamType === "sunshine" ? (
+                      // Sunshine Status
+                      <div className={`setup-status-item ${setupStatus.sunshine === "not-ready" ? "has-error" : ""}`}>
+                        <div className={`status-indicator ${setupStatus.sunshine}`}>
+                          {setupStatus.sunshine === "ready" ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          ) : setupStatus.sunshine === "checking" ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin">
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="15" y1="9" x2="9" y2="15" />
+                              <line x1="9" y1="9" x2="15" y2="15" />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="status-info">
+                          <div className="status-name">Sunshine</div>
+                          <div className="status-description">{setupDetails.sunshineMessage}</div>
+                        </div>
+                        {setupStatus.sunshine === "not-ready" && (
+                          <a
+                            href="https://github.com/LizardByte/Sunshine/releases"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="status-action-link"
+                          >
+                            Download
+                          </a>
                         )}
                       </div>
-                      <div className="status-info">
-                        <div className="status-name">Sunshine</div>
-                        <div className="status-description">{setupDetails.sunshineMessage}</div>
+                    ) : (
+                      // OBS Status
+                      <div className={`setup-status-item ${setupStatus.obs === "not-ready" ? "has-error" : ""}`}>
+                        <div className={`status-indicator ${setupStatus.obs}`}>
+                          {setupStatus.obs === "ready" ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          ) : setupStatus.obs === "checking" ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin">
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="15" y1="9" x2="9" y2="15" />
+                              <line x1="9" y1="9" x2="15" y2="15" />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="status-info">
+                          <div className="status-name">OBS Studio</div>
+                          <div className="status-description">{setupDetails.obsMessage}</div>
+                        </div>
+                        {setupStatus.obs === "not-ready" && (
+                          <a
+                            href="https://obsproject.com/download"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="status-action-link"
+                          >
+                            Download
+                          </a>
+                        )}
                       </div>
-                      {setupStatus.sunshine === "not-ready" && (
-                        <a
-                          href="https://github.com/LizardByte/Sunshine/releases"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="status-action-link"
-                        >
-                          Download
-                        </a>
-                      )}
-                    </div>
+                    )}
 
                     {/* Tailscale Status */}
                     <div className={`setup-status-item ${setupStatus.tailscale === "not-ready" ? "has-error" : ""}`}>
@@ -528,7 +628,10 @@ export function HostStream() {
                   </div>
 
                   {/* Setup Warning */}
-                  {!isSetupReady && setupStatus.sunshine !== "checking" && setupStatus.tailscale !== "checking" && setupStatus.network !== "checking" && (
+                  {!isSetupReady &&
+                   (streamType === "sunshine" ? setupStatus.sunshine !== "checking" : setupStatus.obs !== "checking") &&
+                   setupStatus.tailscale !== "checking" &&
+                   setupStatus.network !== "checking" && (
                     <div className="setup-warning">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -540,6 +643,9 @@ export function HostStream() {
                         {setupStatus.tailscale === "not-ready" && (
                           <> Go to <Link to="/settings">Settings</Link> to configure your Tailscale IP.</>
                         )}
+                        {streamType === "obs" && setupStatus.obs === "not-ready" && (
+                          <> See the OBS Setup Guide below for detailed instructions.</>
+                        )}
                       </span>
                     </div>
                   )}
@@ -550,6 +656,34 @@ export function HostStream() {
                   <h2 className="stream-settings-title">Stream Settings</h2>
 
                   <div className="stream-form">
+                    {/* Stream Type Selector */}
+                    <div className="form-group">
+                      <label className="form-label">Streaming Method</label>
+                      <div className="stream-type-selector">
+                        <div
+                          className={`stream-type-option ${streamType === "sunshine" ? "selected" : ""}`}
+                          onClick={() => setStreamType("sunshine")}
+                        >
+                          <div className="stream-type-icon">🎮</div>
+                          <div className="stream-type-info">
+                            <h4>Sunshine</h4>
+                            <p>Best for gaming - Ultra-low latency</p>
+                          </div>
+                        </div>
+
+                        <div
+                          className={`stream-type-option ${streamType === "obs" ? "selected" : ""}`}
+                          onClick={() => setStreamType("obs")}
+                        >
+                          <div className="stream-type-icon">🎬</div>
+                          <div className="stream-type-info">
+                            <h4>OBS Studio</h4>
+                            <p>Movies, presentations, browser sharing</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     <Input
                       label="Stream Title"
                       placeholder="What are you streaming today?"
@@ -566,11 +700,12 @@ export function HostStream() {
                           onChange={(e) => setCategory(e.target.value as Category)}
                         >
                           <option value="gaming">Gaming</option>
-                          <option value="movies">Movies & TV</option>
+                          <option value="movies_tv">Movies & TV</option>
+                          <option value="presentations">Presentations</option>
+                          <option value="browser_sharing">Browser Sharing</option>
                           <option value="creative">Creative</option>
                           <option value="just_chatting">Just Chatting</option>
                           <option value="music">Music</option>
-                          <option value="sports">Sports</option>
                           <option value="other">Other</option>
                         </select>
                       </div>
@@ -641,6 +776,76 @@ export function HostStream() {
                     </div>
                   </div>
                 </Card>
+
+                {/* OBS Setup Guide - Show when OBS is selected */}
+                {streamType === "obs" && (
+                  <Card className="obs-setup-card">
+                    <h2 className="obs-setup-title">📺 OBS Studio Setup</h2>
+                    <p className="obs-setup-intro">
+                      Follow these steps to configure OBS Studio for streaming:
+                    </p>
+
+                    <div className="obs-setup-steps">
+                      <div className="obs-setup-step">
+                        <span className="step-number">1</span>
+                        <div className="step-content">
+                          <h4>Download & Install OBS</h4>
+                          <p>Get OBS Studio from the official website</p>
+                          <a
+                            href="https://obsproject.com/download"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="obs-download-link"
+                          >
+                            Download OBS Studio →
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className="obs-setup-step">
+                        <span className="step-number">2</span>
+                        <div className="step-content">
+                          <h4>Install OBS WebSocket Plugin</h4>
+                          <p>Required for Alodust to detect OBS status</p>
+                          <a
+                            href="https://github.com/obsproject/obs-websocket/releases"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="obs-download-link"
+                          >
+                            Download WebSocket Plugin →
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className="obs-setup-step">
+                        <span className="step-number">3</span>
+                        <div className="step-content">
+                          <h4>Configure Stream Settings</h4>
+                          <p>Once you start your stream, you'll receive:</p>
+                          <ul>
+                            <li>RTMP Server URL</li>
+                            <li>Stream Key</li>
+                          </ul>
+                          <p className="obs-note">
+                            Enter these in OBS: Settings → Stream → Service: Custom
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="obs-setup-step">
+                        <span className="step-number">4</span>
+                        <div className="step-content">
+                          <h4>Start Streaming</h4>
+                          <p>
+                            After starting your stream on Alodust, configure OBS and click
+                            "Start Streaming" in OBS Studio
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
               </>
             )}
           </div>

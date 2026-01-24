@@ -230,8 +230,10 @@ export function WatchStream() {
                       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                     </svg>
                     <div className="connected-info">
-                      <h3>Streaming via Moonlight</h3>
-                      <p>Connect using the IP below or click to open Moonlight</p>
+                      <h3>Streaming via {stream.streamType === "obs" ? "OBS Studio" : "Moonlight"}</h3>
+                      <p>{stream.streamType === "obs"
+                        ? "Connect using VLC or compatible RTMP player"
+                        : "Connect using the IP below or click to open Moonlight"}</p>
                     </div>
                   </div>
 
@@ -245,12 +247,28 @@ export function WatchStream() {
                       </svg>
                     </div>
 
-                    <button className="quick-connect-btn" onClick={openMoonlight}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                      </svg>
-                      Open Moonlight
-                    </button>
+                    {stream.streamType === "obs" ? (
+                      <button
+                        className="quick-connect-btn"
+                        onClick={() => {
+                          const rtmpUrl = `${stream.obsServerUrl}/${stream.obsStreamKey}`;
+                          navigator.clipboard.writeText(rtmpUrl);
+                        }}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                        Copy Stream URL
+                      </button>
+                    ) : (
+                      <button className="quick-connect-btn" onClick={openMoonlight}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                        </svg>
+                        Open Moonlight
+                      </button>
+                    )}
 
                     <button className="help-btn" onClick={showGuide} title="Connection Help">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -286,7 +304,7 @@ export function WatchStream() {
                       </svg>
                       <h2>Connect to Stream</h2>
                       <p>
-                        {stream.host?.displayName || stream.host?.username} is streaming via Moonlight.
+                        {stream.host?.displayName || stream.host?.username} is streaming via {stream.streamType === "obs" ? "OBS Studio" : "Moonlight"}.
                         Follow these steps to connect:
                       </p>
                     </div>
@@ -294,49 +312,98 @@ export function WatchStream() {
                     {/* Guide Sections with Tabs */}
                     <div className="guide-tabs">
                       <button className="guide-tab active" data-tab="quick">Quick Connect</button>
-                      <button className="guide-tab" data-tab="tailscale">Tailscale Setup</button>
-                      <button className="guide-tab" data-tab="moonlight">Moonlight Setup</button>
+                      {stream.streamType !== "obs" && (
+                        <>
+                          <button className="guide-tab" data-tab="tailscale">Tailscale Setup</button>
+                          <button className="guide-tab" data-tab="moonlight">Moonlight Setup</button>
+                        </>
+                      )}
                     </div>
 
                     {/* Quick Connect - For returning users */}
                     <div className="guide-section" id="quick-connect">
-                      <div className="guide-steps">
-                        <div className="guide-step">
-                          <span className="step-number">1</span>
-                          <div className="step-content">
-                            <h4>Open Tailscale</h4>
-                            <p>Make sure Tailscale is connected (check system tray icon)</p>
-                          </div>
-                        </div>
-
-                        <div className="guide-step">
-                          <span className="step-number">2</span>
-                          <div className="step-content">
-                            <h4>Open Moonlight & Connect</h4>
-                            <p>Host's Tailscale IP:</p>
-                            <div className="guide-ip-box" onClick={copyIP}>
-                              <code>{stream.tailscaleIP}</code>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                              </svg>
+                      {stream.streamType === "obs" ? (
+                        // OBS Quick Connect
+                        <div className="guide-steps">
+                          <div className="guide-step">
+                            <span className="step-number">1</span>
+                            <div className="step-content">
+                              <h4>Download VLC Player (if needed)</h4>
+                              <p>VLC is a free media player that supports RTMP streams</p>
+                              <a href="https://www.videolan.org/vlc/" target="_blank" rel="noopener noreferrer" className="download-link">
+                                Download VLC
+                              </a>
                             </div>
-                            {stream.tailscaleIP === "100.0.0.1" && (
-                              <p className="ip-warning">
-                                ⚠️ Host hasn't configured their Tailscale IP yet. Ask them to update it in Settings.
-                              </p>
-                            )}
                           </div>
-                        </div>
 
-                        <div className="guide-step">
-                          <span className="step-number">3</span>
-                          <div className="step-content">
-                            <h4>Select Desktop</h4>
-                            <p>Choose "Desktop" from the host's app list to start watching</p>
+                          <div className="guide-step">
+                            <span className="step-number">2</span>
+                            <div className="step-content">
+                              <h4>Open VLC & Connect</h4>
+                              <p>1. Open VLC Player</p>
+                              <p>2. Go to Media → Open Network Stream</p>
+                              <p>3. Paste this URL:</p>
+                              <div className="guide-ip-box" onClick={() => {
+                                const rtmpUrl = `${stream.obsServerUrl}/${stream.obsStreamKey}`;
+                                navigator.clipboard.writeText(rtmpUrl);
+                              }}>
+                                <code>{stream.obsServerUrl}/{stream.obsStreamKey}</code>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="guide-step">
+                            <span className="step-number">3</span>
+                            <div className="step-content">
+                              <h4>Click Play</h4>
+                              <p>The stream should start playing automatically</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        // Moonlight Quick Connect
+                        <div className="guide-steps">
+                          <div className="guide-step">
+                            <span className="step-number">1</span>
+                            <div className="step-content">
+                              <h4>Open Tailscale</h4>
+                              <p>Make sure Tailscale is connected (check system tray icon)</p>
+                            </div>
+                          </div>
+
+                          <div className="guide-step">
+                            <span className="step-number">2</span>
+                            <div className="step-content">
+                              <h4>Open Moonlight & Connect</h4>
+                              <p>Host's Tailscale IP:</p>
+                              <div className="guide-ip-box" onClick={copyIP}>
+                                <code>{stream.tailscaleIP}</code>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                </svg>
+                              </div>
+                              {stream.tailscaleIP === "100.0.0.1" && (
+                                <p className="ip-warning">
+                                  ⚠️ Host hasn't configured their Tailscale IP yet. Ask them to update it in Settings.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="guide-step">
+                            <span className="step-number">3</span>
+                            <div className="step-content">
+                              <h4>Select Desktop</h4>
+                              <p>Choose "Desktop" from the host's app list to start watching</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Full Tailscale Setup Guide */}
@@ -565,13 +632,24 @@ export function WatchStream() {
                 {stream.category?.replace("_", " ") || "General"}
               </span>
               <p className="stream-description">
-                Watching via Moonlight streaming protocol over Tailscale secure network.
-                Enjoy ultra-low latency and high-quality video directly from the host's PC.
+                {stream.streamType === "obs"
+                  ? "Watching via OBS Studio RTMP stream. Connect using VLC or any compatible RTMP player."
+                  : "Watching via Moonlight streaming protocol over Tailscale secure network. Enjoy ultra-low latency and high-quality video directly from the host's PC."}
               </p>
               <div className="tech-specs">
-                <span className="tech-spec">Tailscale: {stream.tailscaleIP}</span>
-                <span className="tech-spec">Quality: {stream.quality}</span>
-                <span className="tech-spec">Protocol: Moonlight</span>
+                {stream.streamType === "obs" ? (
+                  <>
+                    <span className="tech-spec">Server: {stream.obsServerUrl}</span>
+                    <span className="tech-spec">Quality: {stream.quality}</span>
+                    <span className="tech-spec">Protocol: RTMP/OBS</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="tech-spec">Tailscale: {stream.tailscaleIP}</span>
+                    <span className="tech-spec">Quality: {stream.quality}</span>
+                    <span className="tech-spec">Protocol: Moonlight</span>
+                  </>
+                )}
               </div>
             </Card>
           </div>
