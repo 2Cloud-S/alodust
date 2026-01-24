@@ -18,31 +18,45 @@ export function Logo({ size = 'md', showText = true, className = '' }: LogoProps
       className={`flex items-center gap-sm ${className}`}
       style={{ cursor: 'pointer' }}
     >
-      {/* Lightning bolt icon */}
+      {/* 8-bit pixel art "A" logo */}
       <svg
         width={icon}
         height={icon}
-        viewBox="0 0 32 32"
+        viewBox="0 0 16 16"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         style={{
           filter: 'drop-shadow(0 0 8px var(--neon-cyan))',
+          imageRendering: 'pixelated',
         }}
       >
-        <path
-          d="M18 2L6 18H15L14 30L26 14H17L18 2Z"
-          fill="url(#gradient)"
-          stroke="var(--neon-cyan)"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <defs>
-          <linearGradient id="gradient" x1="6" y1="2" x2="26" y2="30">
-            <stop stopColor="#00FFFF" />
-            <stop offset="1" stopColor="#FF00FF" />
-          </linearGradient>
-        </defs>
+        {/* Top of A */}
+        <rect x="6" y="2" width="2" height="2" fill="var(--neon-cyan)" />
+        <rect x="8" y="2" width="2" height="2" fill="var(--neon-cyan)" />
+
+        {/* Upper sides */}
+        <rect x="4" y="4" width="2" height="2" fill="var(--neon-cyan)" />
+        <rect x="10" y="4" width="2" height="2" fill="var(--neon-cyan)" />
+
+        {/* Middle with horizontal bar */}
+        <rect x="4" y="6" width="2" height="2" fill="var(--neon-cyan)" />
+        <rect x="6" y="6" width="2" height="2" fill="var(--neon-magenta)" />
+        <rect x="8" y="6" width="2" height="2" fill="var(--neon-magenta)" />
+        <rect x="10" y="6" width="2" height="2" fill="var(--neon-cyan)" />
+
+        {/* Lower sides */}
+        <rect x="2" y="8" width="2" height="2" fill="var(--neon-cyan)" />
+        <rect x="12" y="8" width="2" height="2" fill="var(--neon-cyan)" />
+
+        <rect x="2" y="10" width="2" height="2" fill="var(--neon-cyan)" />
+        <rect x="12" y="10" width="2" height="2" fill="var(--neon-cyan)" />
+
+        {/* Bottom legs */}
+        <rect x="2" y="12" width="2" height="2" fill="var(--neon-cyan)" />
+        <rect x="12" y="12" width="2" height="2" fill="var(--neon-cyan)" />
+
+        <rect x="2" y="14" width="2" height="2" fill="var(--neon-cyan)" />
+        <rect x="12" y="14" width="2" height="2" fill="var(--neon-cyan)" />
       </svg>
 
       {showText && (

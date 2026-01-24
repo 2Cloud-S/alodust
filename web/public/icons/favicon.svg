@@ -1,10 +1,30 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background with rounded corners -->
   <rect width="32" height="32" rx="6" fill="#0A0A0F"/>
-  <path d="M18 4L6 18H15L14 28L26 14H17L18 4Z" fill="url(#gradient)" stroke="#00FFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <defs>
-    <linearGradient id="gradient" x1="6" y1="4" x2="26" y2="28" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#00FFFF"/>
-      <stop offset="1" stop-color="#FF00FF"/>
-    </linearGradient>
-  </defs>
+
+  <!-- 8-bit pixel art "A" logo (2x scale for 32x32 canvas) -->
+  <!-- Top of A -->
+  <rect x="12" y="4" width="4" height="4" fill="#00FFFF"/>
+  <rect x="16" y="4" width="4" height="4" fill="#00FFFF"/>
+
+  <!-- Upper sides -->
+  <rect x="8" y="8" width="4" height="4" fill="#00FFFF"/>
+  <rect x="20" y="8" width="4" height="4" fill="#00FFFF"/>
+
+  <!-- Middle with horizontal bar (magenta accent) -->
+  <rect x="8" y="12" width="4" height="4" fill="#00FFFF"/>
+  <rect x="12" y="12" width="4" height="4" fill="#FF00FF"/>
+  <rect x="16" y="12" width="4" height="4" fill="#FF00FF"/>
+  <rect x="20" y="12" width="4" height="4" fill="#00FFFF"/>
+
+  <!-- Lower sides -->
+  <rect x="4" y="16" width="4" height="4" fill="#00FFFF"/>
+  <rect x="24" y="16" width="4" height="4" fill="#00FFFF"/>
+
+  <rect x="4" y="20" width="4" height="4" fill="#00FFFF"/>
+  <rect x="24" y="20" width="4" height="4" fill="#00FFFF"/>
+
+  <!-- Bottom legs -->
+  <rect x="4" y="24" width="4" height="4" fill="#00FFFF"/>
+  <rect x="24" y="24" width="4" height="4" fill="#00FFFF"/>
 </svg>

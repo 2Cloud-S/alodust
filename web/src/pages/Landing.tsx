@@ -137,7 +137,7 @@ export function Landing() {
                 </div>
                 <h3 className="feature-title">Friends-First</h3>
                 <p className="feature-description">
-                  Built around friend groups. See who's online, get notified when friends go live.
+                  Custom friend groups, instant invite links, and import from Discord/Steam.
                 </p>
               </Card>
             </motion.div>
@@ -169,6 +169,67 @@ export function Landing() {
                 <h3 className="feature-title">100% Free</h3>
                 <p className="feature-description">
                   Open source and self-hosted. No subscriptions, no hidden costs, no data collection.
+                </p>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <Card glowColor="magenta">
+                <div className="feature-icon feature-icon-magenta">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-magenta)" strokeWidth="2">
+                    <path d="M12 2v20M2 12h20" />
+                    <circle cx="12" cy="12" r="10" />
+                  </svg>
+                </div>
+                <h3 className="feature-title">OBS & Sunshine</h3>
+                <p className="feature-description">
+                  Stream via OBS or Sunshine. Switch between sources seamlessly with one click.
+                </p>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <Card glowColor="cyan">
+                <div className="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" strokeWidth="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="8.5" cy="7" r="4" />
+                    <polyline points="17 11 19 13 23 9" />
+                  </svg>
+                </div>
+                <h3 className="feature-title">Friend Import</h3>
+                <p className="feature-description">
+                  One-click import from Discord and Steam. Find friends already on Alodust.
+                </p>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <Card glowColor="green">
+                <div className="feature-icon feature-icon-green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-green)" strokeWidth="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                </div>
+                <h3 className="feature-title">Invite Links</h3>
+                <p className="feature-description">
+                  Share invite links that expire in 7 days. Perfect for gaming communities.
+                </p>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <Card glowColor="orange">
+                <div className="feature-icon feature-icon-orange">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-orange)" strokeWidth="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                  </svg>
+                </div>
+                <h3 className="feature-title">Friend Groups</h3>
+                <p className="feature-description">
+                  Organize friends into custom groups with colors and icons for easy management.
                 </p>
               </Card>
             </motion.div>
@@ -218,7 +279,7 @@ export function Landing() {
               <div className="step-content">
                 <h3 className="step-title">Add Friends</h3>
                 <p className="step-description">
-                  Invite friends by username or share an invite link. Accept requests to connect.
+                  Import from Discord/Steam, share invite links, or add by username. Organize into custom groups.
                 </p>
               </div>
             </motion.div>
@@ -353,7 +414,34 @@ export function Landing() {
               <a href="/privacy">Privacy</a>
             </div>
             <p className="footer-copyright">
-              MIT License. Made with ⚡ by the Alodust community.
+              MIT License. Made with{' '}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                style={{ display: 'inline-block', verticalAlign: 'middle', margin: '0 2px' }}
+              >
+                {/* 8-bit pixelated "A" logo */}
+                <rect x="6" y="2" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="8" y="2" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="4" y="4" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="10" y="4" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="4" y="6" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="6" y="6" width="2" height="2" fill="var(--neon-magenta)" />
+                <rect x="8" y="6" width="2" height="2" fill="var(--neon-magenta)" />
+                <rect x="10" y="6" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="4" y="8" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="10" y="8" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="4" y="10" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="10" y="10" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="4" y="12" width="2" height="2" fill="var(--neon-cyan)" />
+                <rect x="10" y="12" width="2" height="2" fill="var(--neon-cyan)" />
+                {/* Glow effect */}
+                <rect x="6" y="2" width="2" height="2" fill="var(--neon-cyan)" opacity="0.3" filter="blur(2px)" />
+                <rect x="8" y="2" width="2" height="2" fill="var(--neon-cyan)" opacity="0.3" filter="blur(2px)" />
+              </svg>
+              {' '}by the Alodust community.
             </p>
           </div>
         </Container>

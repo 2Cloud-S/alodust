@@ -128,7 +128,30 @@ export function Privacy() {
                 <li>Your Tailscale IP address (entered by you in Settings)</li>
                 <li>Stream settings (quality, privacy preferences)</li>
                 <li>Friend connections and groups</li>
+                <li>OBS stream keys (if you use OBS streaming)</li>
               </ul>
+            </div>
+
+            <div className="subsection">
+              <h3>Social Connections (Optional)</h3>
+              <p>If you choose to import friends from Discord or Steam, we store:</p>
+              <ul>
+                <li>Your Discord username and ID (one-time import, no ongoing access)</li>
+                <li>Your Steam username and ID (one-time import, no ongoing access)</li>
+                <li>Friend lists from these platforms to help you find friends on Alodust</li>
+              </ul>
+              <div className="data-notice" style={{ marginTop: '1rem' }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <p>
+                  <strong>One-time import only:</strong> We don't continuously sync with Discord/Steam.
+                  Your OAuth tokens are used once and discarded. We only store usernames/IDs to help
+                  match friends already on Alodust.
+                </p>
+              </div>
             </div>
 
             <div className="subsection">
@@ -304,6 +327,20 @@ export function Privacy() {
                   Privacy Policy
                 </a>
               </div>
+              <div className="third-party-item">
+                <h4>Discord (Optional)</h4>
+                <p>Friend import via OAuth (one-time)</p>
+                <a href="https://discord.com/privacy" target="_blank" rel="noopener noreferrer">
+                  Privacy Policy
+                </a>
+              </div>
+              <div className="third-party-item">
+                <h4>Steam (Optional)</h4>
+                <p>Friend import via OpenID (one-time)</p>
+                <a href="https://store.steampowered.com/privacy_agreement/" target="_blank" rel="noopener noreferrer">
+                  Privacy Policy
+                </a>
+              </div>
             </div>
 
             <p className="third-party-note">
@@ -333,6 +370,8 @@ export function Privacy() {
               <li><strong>Account data:</strong> Retained while your account is active</li>
               <li><strong>Chat messages:</strong> Deleted when a stream ends</li>
               <li><strong>Stream metadata:</strong> Retained for 30 days for history/stats</li>
+              <li><strong>Imported friends data:</strong> Retained until you disconnect the service or delete your account</li>
+              <li><strong>Invite links:</strong> Automatically deleted 7 days after creation</li>
               <li><strong>Deleted accounts:</strong> All data permanently removed within 30 days</li>
             </ul>
           </motion.section>
