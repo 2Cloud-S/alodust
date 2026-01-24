@@ -135,7 +135,7 @@ export function Landing() {
                     <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                 </div>
-                <h3 className="feature-title">Friends-First Design</h3>
+                <h3 className="feature-title">Friends-First</h3>
                 <p className="feature-description">
                   Built around friend groups. See who's online, get notified when friends go live.
                 </p>
