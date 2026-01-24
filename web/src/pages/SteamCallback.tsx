@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../hooks/useAuth";
-import { extractSteamId, getSteamUserInfo, getSteamFriends } from "../services/steamAuth";
+import { extractSteamId, getSteamDataSecurely } from "../services/steamAuth";
 import { TronBackground, Navbar, Container, Card } from "../components";
 import "./AuthCallback.css";
 
@@ -34,11 +34,8 @@ export function SteamCallback() {
       }
 
       try {
-        setMessage("Fetching Steam profile...");
-        const userInfo = await getSteamUserInfo(steamId);
-
-        setMessage("Fetching Steam friends...");
-        const friends = await getSteamFriends(steamId);
+        setMessage("Fetching Steam data...");
+        const { userInfo, friends } = await getSteamDataSecurely(steamId);
 
         setMessage("Importing friends...");
         const stats = await importSteamFriends({

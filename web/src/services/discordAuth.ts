@@ -1,3 +1,6 @@
+import { api } from "../../convex/_generated/api";
+import { ConvexHttpClient } from "convex/browser";
+
 // Discord OAuth Configuration
 const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID;
 const DISCORD_REDIRECT_URI = import.meta.env.VITE_DISCORD_REDIRECT_URI;
@@ -30,57 +33,15 @@ export async function handleDiscordCallback(code: string, state: string) {
   }
   sessionStorage.removeItem("discord_oauth_state");
 
-  // Exchange code for access token
-  const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: DISCORD_CLIENT_ID!,
-      client_secret: import.meta.env.VITE_DISCORD_CLIENT_SECRET || "",
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: DISCORD_REDIRECT_URI!,
-    }),
+  // Use Convex action to securely exchange code for token
+  // This keeps the client secret on the server
+  const convexUrl = import.meta.env.VITE_CONVEX_URL;
+  const client = new ConvexHttpClient(convexUrl);
+
+  const result = await client.action(api.oauth.exchangeDiscordCode, {
+    code,
+    redirectUri: DISCORD_REDIRECT_URI!,
   });
 
-  if (!tokenResponse.ok) {
-    throw new Error("Failed to exchange code for token");
-  }
-
-  const tokens = await tokenResponse.json();
-
-  // Fetch user info
-  const userResponse = await fetch("https://discord.com/api/users/@me", {
-    headers: { Authorization: `Bearer ${tokens.access_token}` },
-  });
-
-  if (!userResponse.ok) {
-    throw new Error("Failed to fetch user info");
-  }
-
-  const user = await userResponse.json();
-
-  // Fetch connections
-  const connectionsResponse = await fetch(
-    "https://discord.com/api/users/@me/connections",
-    {
-      headers: { Authorization: `Bearer ${tokens.access_token}` },
-    }
-  );
-
-  if (!connectionsResponse.ok) {
-    throw new Error("Failed to fetch connections");
-  }
-
-  const connections = await connectionsResponse.json();
-
-  return {
-    user: {
-      id: user.id,
-      username: user.username,
-      discriminator: user.discriminator,
-      avatar: user.avatar,
-    },
-    connections,
-  };
+  return result;
 }

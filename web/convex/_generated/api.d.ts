@@ -15,6 +15,7 @@ import type * as friends from "../friends.js";
 import type * as imports from "../imports.js";
 import type * as invites from "../invites.js";
 import type * as notifications from "../notifications.js";
+import type * as oauth from "../oauth.js";
 import type * as streams from "../streams.js";
 import type * as users from "../users.js";
 
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   imports: typeof imports;
   invites: typeof invites;
   notifications: typeof notifications;
+  oauth: typeof oauth;
   streams: typeof streams;
   users: typeof users;
 }>;
