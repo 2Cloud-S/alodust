@@ -1,0 +1,134 @@
+.invite-links-modal {
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.invite-description {
+  margin-bottom: var(--space-lg);
+  color: var(--slate-gray);
+}
+
+.invite-description p {
+  margin-bottom: var(--space-sm);
+}
+
+.invite-description .subtle {
+  font-size: 0.875rem;
+  color: var(--carbon-gray);
+}
+
+.generate-btn {
+  width: 100%;
+  margin-bottom: var(--space-xl);
+}
+
+.invites-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--slate-gray);
+}
+
+.empty-state .subtle {
+  font-size: 0.875rem;
+  color: var(--carbon-gray);
+  margin-top: var(--space-sm);
+}
+
+.invite-card {
+  padding: var(--space-lg);
+}
+
+.invite-info {
+  margin-bottom: var(--space-md);
+}
+
+.invite-code {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(0, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.code-label {
+  font-size: 0.875rem;
+  color: var(--slate-gray);
+}
+
+.code-value {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  color: var(--neon-cyan);
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.invite-stats {
+  display: flex;
+  gap: var(--space-xl);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--carbon-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 0.875rem;
+  color: var(--slate-gray);
+  font-weight: 500;
+}
+
+.invite-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+}
+
+.revoke-btn {
+  color: var(--neon-orange);
+}
+
+.revoke-btn:hover {
+  border-color: var(--neon-orange);
+  background: rgba(255, 77, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .invite-links-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .invite-stats {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .invite-actions {
+    flex-direction: column;
+  }
+
+  .invite-actions button {
+    width: 100%;
+  }
+}

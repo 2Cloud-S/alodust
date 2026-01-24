@@ -6,3 +6,4 @@ export { HostStream } from './HostStream';
 export { WatchStream } from './WatchStream';
 export { Settings } from './Settings';
 export { Privacy } from './Privacy';
+export { AcceptInvite } from './AcceptInvite';

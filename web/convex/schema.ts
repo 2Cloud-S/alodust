@@ -67,6 +67,19 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_user", ["userId"]),
 
+  // ========== INVITE LINKS ==========
+  inviteLinks: defineTable({
+    userId: v.id("users"), // Link creator
+    code: v.string(), // Random code (8 chars)
+    expiresAt: v.number(), // Timestamp (now + 7 days)
+    usedBy: v.array(v.id("users")), // Track who used it
+    maxUses: v.optional(v.number()), // Optional use limit
+    createdAt: v.number(),
+  })
+    .index("by_code", ["code"])
+    .index("by_user", ["userId"])
+    .index("by_expiry", ["expiresAt"]),
+
   // ========== STREAMS ==========
   streams: defineTable({
     hostId: v.id("users"),

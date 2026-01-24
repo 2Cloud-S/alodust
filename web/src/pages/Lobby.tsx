@@ -13,12 +13,14 @@ import {
   Badge,
   Input,
 } from "../components";
+import { InviteLinksModal } from "../components/friends/InviteLinksModal";
 import { Link } from "react-router-dom";
 import "./Lobby.css";
 
 export function Lobby() {
   const { user, userId, isLoaded, isSignedIn } = useAuth();
   const [showAddFriend, setShowAddFriend] = useState(false);
+  const [showInviteLinks, setShowInviteLinks] = useState(false);
   const [friendUsername, setFriendUsername] = useState("");
   const [addFriendError, setAddFriendError] = useState("");
 
@@ -123,6 +125,9 @@ export function Lobby() {
             <div className="lobby-actions">
               <Button variant="ghost" onClick={() => setShowAddFriend(true)}>
                 Add Friend
+              </Button>
+              <Button variant="ghost" onClick={() => setShowInviteLinks(true)}>
+                Invite Links
               </Button>
               <Link to="/stream/new">
                 <Button variant="primary">Start Stream</Button>
@@ -323,6 +328,14 @@ export function Lobby() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Invite Links Modal */}
+      {showInviteLinks && userId && (
+        <InviteLinksModal
+          userId={userId}
+          onClose={() => setShowInviteLinks(false)}
+        />
       )}
     </div>
   );

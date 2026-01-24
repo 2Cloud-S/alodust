@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ConvexClientProvider, ClerkProvider } from "./providers";
-import { Landing, Login, Signup, Lobby, HostStream, WatchStream, Settings, Privacy } from "./pages";
+import { Landing, Login, Signup, Lobby, HostStream, WatchStream, Settings, Privacy, AcceptInvite } from "./pages";
 import "./styles/index.css";
 
 function AppRoutes() {
@@ -10,6 +10,7 @@ function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/login/*" element={<Login />} />
       <Route path="/signup/*" element={<Signup />} />
+      <Route path="/invite/:code" element={<AcceptInvite />} />
 
       {/* Protected routes */}
       <Route path="/lobby" element={<Lobby />} />
