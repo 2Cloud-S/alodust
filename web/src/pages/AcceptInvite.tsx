@@ -21,6 +21,7 @@ export function AcceptInvite() {
 
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [alreadyFriends, setAlreadyFriends] = useState(false);
 
   const invite = useQuery(
     api.invites.getInviteByCode,
@@ -47,15 +48,37 @@ export function AcceptInvite() {
     if (!userId || !code) return;
 
     try {
-      await acceptInvite({
+      const result = await acceptInvite({
         code,
         acceptorId: userId as any,
       });
+
       setStatus("success");
-      setTimeout(() => navigate("/lobby"), 2000);
+      setAlreadyFriends(!!result?.alreadyFriends);
+
+      // If already friends, redirect immediately
+      if (result?.alreadyFriends) {
+        setTimeout(() => navigate("/lobby"), 1000);
+      } else {
+        setTimeout(() => navigate("/lobby"), 2000);
+      }
     } catch (error: any) {
       setStatus("error");
-      setErrorMessage(error.message || "Failed to accept invite");
+
+      // Provide more user-friendly error messages
+      let message = error.message || "Failed to accept invite";
+
+      if (message.includes("own invite")) {
+        message = "You cannot accept your own invite link. Share it with friends instead!";
+      } else if (message.includes("Already friends")) {
+        message = "You're already friends with this user!";
+      } else if (message.includes("expired")) {
+        message = "This invite link has expired. Ask your friend for a new one.";
+      } else if (message.includes("limit reached")) {
+        message = "This invite link has reached its maximum uses.";
+      }
+
+      setErrorMessage(message);
     }
   };
 
@@ -184,8 +207,12 @@ export function AcceptInvite() {
             {status === "success" && (
               <Card className="status-card success">
                 <div className="success-icon">✓</div>
-                <h2>Friend Request Accepted!</h2>
-                <p>You are now friends with {invite?.creatorUsername}</p>
+                <h2>{alreadyFriends ? "Already Friends!" : "Friend Request Accepted!"}</h2>
+                <p>
+                  {alreadyFriends
+                    ? `You're already friends with ${invite?.creatorUsername}`
+                    : `You are now friends with ${invite?.creatorUsername}`}
+                </p>
                 <p className="redirect-notice">Redirecting to lobby...</p>
               </Card>
             )}

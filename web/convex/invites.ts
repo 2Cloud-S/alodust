@@ -75,33 +75,37 @@ export const acceptInviteLink = mutation({
       throw new Error("Invite link limit reached");
     }
 
-    if (invite.usedBy.includes(acceptorId)) {
-      throw new Error("Already used this invite");
-    }
-
+    // Check if trying to accept own invite first (before other checks)
     if (invite.userId === acceptorId) {
       throw new Error("Cannot accept your own invite");
     }
 
-    // Check if already friends
+    if (invite.usedBy.includes(acceptorId)) {
+      throw new Error("Already used this invite");
+    }
+
+    // Check if already friends (check both directions)
     const existingFriendship1 = await ctx.db
       .query("friendships")
-      .withIndex("by_user_status", (q) =>
-        q.eq("userId", invite.userId).eq("status", "accepted")
-      )
+      .withIndex("by_user", (q) => q.eq("userId", invite.userId))
       .filter((q) => q.eq(q.field("friendId"), acceptorId))
       .first();
 
     const existingFriendship2 = await ctx.db
       .query("friendships")
-      .withIndex("by_user_status", (q) =>
-        q.eq("userId", acceptorId).eq("status", "accepted")
-      )
+      .withIndex("by_user", (q) => q.eq("userId", acceptorId))
       .filter((q) => q.eq(q.field("friendId"), invite.userId))
       .first();
 
+    // If already friends (either direction), just mark invite as used and return success
     if (existingFriendship1 || existingFriendship2) {
-      throw new Error("Already friends");
+      // Mark invite as used if not already
+      if (!invite.usedBy.includes(acceptorId)) {
+        await ctx.db.patch(invite._id, {
+          usedBy: [...invite.usedBy, acceptorId],
+        });
+      }
+      return { success: true, alreadyFriends: true };
     }
 
     // Create friendship (auto-accepted via invite)
