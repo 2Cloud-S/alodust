@@ -14,6 +14,8 @@ import {
   Input,
 } from "../components";
 import { InviteLinksModal } from "../components/friends/InviteLinksModal";
+import { ManageGroupsModal } from "../components/friends/ManageGroupsModal";
+import { FriendGroup } from "../components/friends/FriendGroup";
 import { Link } from "react-router-dom";
 import "./Lobby.css";
 
@@ -21,6 +23,7 @@ export function Lobby() {
   const { user, userId, isLoaded, isSignedIn } = useAuth();
   const [showAddFriend, setShowAddFriend] = useState(false);
   const [showInviteLinks, setShowInviteLinks] = useState(false);
+  const [showManageGroups, setShowManageGroups] = useState(false);
   const [friendUsername, setFriendUsername] = useState("");
   const [addFriendError, setAddFriendError] = useState("");
 
@@ -32,6 +35,11 @@ export function Lobby() {
   );
   const liveStreams = useQuery(
     api.streams.getActiveFriendStreams,
+    userId ? { userId } : "skip"
+  );
+  const groups = useQuery(api.friendGroups.listGroups, userId ? { userId } : "skip");
+  const ungroupedFriends = useQuery(
+    api.friendGroups.getUngroupedFriends,
     userId ? { userId } : "skip"
   );
 
@@ -128,6 +136,9 @@ export function Lobby() {
               </Button>
               <Button variant="ghost" onClick={() => setShowInviteLinks(true)}>
                 Invite Links
+              </Button>
+              <Button variant="ghost" onClick={() => setShowManageGroups(true)}>
+                Manage Groups
               </Button>
               <Link to="/stream/new">
                 <Button variant="primary">Start Stream</Button>
@@ -231,68 +242,58 @@ export function Lobby() {
             </motion.section>
           )}
 
-          {/* Online Friends */}
+          {/* Friend Groups */}
           <section className="lobby-section">
-            <h2 className="lobby-section-title">
-              <span>Friends Online</span>
-              <span className="text-muted">({onlineFriends?.length || 0})</span>
-            </h2>
-            {onlineFriends && onlineFriends.length > 0 ? (
-              <div className="friends-grid">
-                {onlineFriends.map((friend: any) => (
-                  <Card key={friend._id} className="friend-card">
-                    <Avatar
-                      src={friend.avatarUrl}
-                      alt={friend.username}
-                      status={friend.status}
-                      size="lg"
-                    />
-                    <span className="friend-card-name">
-                      {friend.displayName || friend.username}
-                    </span>
-                    <span className="friend-card-username text-muted">
-                      @{friend.username}
-                    </span>
-                    {friend.status === "streaming" && (
-                      <Badge variant="live" className="friend-card-badge" />
-                    )}
-                  </Card>
-                ))}
-              </div>
-            ) : (
+            {/* Default: Online Friends */}
+            <FriendGroup
+              title="Online Friends"
+              icon="🟢"
+              friends={(onlineFriends || []).filter(Boolean) as any[]}
+              showStatus
+            />
+
+            {/* Custom Groups */}
+            {groups?.map((group) => (
+              <FriendGroup
+                key={group._id}
+                title={group.name}
+                icon={group.icon}
+                color={group.color}
+                friends={(group.members || []).filter(Boolean) as any[]}
+                showStatus
+                onEdit={() => setShowManageGroups(true)}
+              />
+            ))}
+
+            {/* Ungrouped Friends */}
+            {ungroupedFriends && ungroupedFriends.length > 0 && (
+              <FriendGroup
+                title="Other Friends"
+                icon="📁"
+                friends={(ungroupedFriends || []).filter(Boolean) as any[]}
+                showStatus
+              />
+            )}
+
+            {/* Default: Offline Friends */}
+            <FriendGroup
+              title="Offline Friends"
+              icon="⚫"
+              friends={(offlineFriends || []).filter(Boolean) as any[]}
+              showStatus
+              collapsed
+            />
+
+            {/* Empty State */}
+            {(!friends || friends.length === 0) && (
               <div className="lobby-empty">
-                <p className="text-muted">No friends online right now.</p>
+                <p className="text-muted">No friends yet.</p>
                 <Button variant="ghost" onClick={() => setShowAddFriend(true)}>
                   Add Friends
                 </Button>
               </div>
             )}
           </section>
-
-          {/* Offline Friends */}
-          {offlineFriends && offlineFriends.length > 0 && (
-            <section className="lobby-section">
-              <h2 className="lobby-section-title">
-                <span className="text-muted">Offline</span>
-                <span className="text-muted">({offlineFriends.length})</span>
-              </h2>
-              <div className="friends-grid friends-grid-offline">
-                {offlineFriends.map((friend: any) => (
-                  <div key={friend._id} className="friend-card friend-card-offline">
-                    <Avatar
-                      src={friend.avatarUrl}
-                      alt={friend.username}
-                      status="offline"
-                      size="md"
-                    />
-                    <span className="friend-card-name text-muted">
-                      {friend.displayName || friend.username}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
         </Container>
       </main>
 
@@ -335,6 +336,14 @@ export function Lobby() {
         <InviteLinksModal
           userId={userId}
           onClose={() => setShowInviteLinks(false)}
+        />
+      )}
+
+      {/* Manage Groups Modal */}
+      {showManageGroups && userId && (
+        <ManageGroupsModal
+          userId={userId}
+          onClose={() => setShowManageGroups(false)}
         />
       )}
     </div>

@@ -1,0 +1,135 @@
+.friend-group {
+  margin-bottom: var(--space-lg);
+  border-left: 3px solid var(--neon-cyan);
+  background: rgba(10, 10, 15, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.group-header:hover {
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.group-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.group-icon {
+  font-size: 1.5rem;
+}
+
+.group-title h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.group-count {
+  font-size: 0.875rem;
+  color: var(--carbon-gray);
+  font-weight: 400;
+}
+
+.group-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.collapse-icon {
+  color: var(--neon-cyan);
+  font-size: 0.875rem;
+  transition: transform 0.3s;
+}
+
+.group-content {
+  overflow: hidden;
+}
+
+.friends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  padding-top: var(--space-md);
+}
+
+.friend-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: rgba(42, 42, 58, 0.5);
+  border: 1px solid rgba(0, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.friend-card:hover {
+  background: rgba(42, 42, 58, 0.8);
+  border-color: var(--neon-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
+}
+
+.friend-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-card-name {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.group-empty {
+  padding: var(--space-xl);
+  text-align: center;
+  color: var(--carbon-gray);
+  font-size: 0.875rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .friends-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .group-header {
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .group-title h3 {
+    font-size: 1rem;
+  }
+
+  .group-icon {
+    font-size: 1.25rem;
+  }
+
+  .group-actions button {
+    font-size: 0.75rem;
+    padding: var(--space-xs) var(--space-sm);
+  }
+}

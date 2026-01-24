@@ -10,6 +10,7 @@
 
 import type * as chat from "../chat.js";
 import type * as crons from "../crons.js";
+import type * as friendGroups from "../friendGroups.js";
 import type * as friends from "../friends.js";
 import type * as invites from "../invites.js";
 import type * as notifications from "../notifications.js";
@@ -25,6 +26,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   crons: typeof crons;
+  friendGroups: typeof friendGroups;
   friends: typeof friends;
   invites: typeof invites;
   notifications: typeof notifications;
