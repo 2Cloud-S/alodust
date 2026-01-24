@@ -20,15 +20,20 @@ export const list = query({
       )
       .collect();
 
-    // Get friend IDs
+    // Get friend IDs and deduplicate
     const friendIds = [
       ...sentFriendships.map((f) => f.friendId),
       ...receivedFriendships.map((f) => f.userId),
     ];
 
+    // Remove duplicates using Set
+    const uniqueFriendIds = Array.from(new Set(friendIds.map((id) => id.toString()))).map(
+      (id) => id as any
+    );
+
     // Fetch friend details
     const friends = await Promise.all(
-      friendIds.map(async (friendId) => {
+      uniqueFriendIds.map(async (friendId) => {
         const friend = await ctx.db.get(friendId);
         if (!friend) return null;
         return {
@@ -196,10 +201,30 @@ export const acceptRequest = mutation({
       throw new Error("Request is not pending");
     }
 
+    // Update the existing friendship to accepted
     await ctx.db.patch(friendshipId, {
       status: "accepted",
       acceptedAt: Date.now(),
     });
+
+    // Check if reverse friendship already exists (shouldn't happen, but safety check)
+    const reverseFriendship = await ctx.db
+      .query("friendships")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("friendId"), friendship.userId))
+      .first();
+
+    // Create reverse friendship for bidirectional relationship (if not exists)
+    if (!reverseFriendship) {
+      await ctx.db.insert("friendships", {
+        userId,
+        friendId: friendship.userId,
+        status: "accepted",
+        requestedBy: friendship.userId,
+        createdAt: friendship.createdAt,
+        acceptedAt: Date.now(),
+      });
+    }
 
     // Create notification for the requester
     await ctx.db.insert("notifications", {
@@ -263,7 +288,7 @@ export const removeFriend = mutation({
     friendId: v.id("users"),
   },
   handler: async (ctx, { userId, friendId }) => {
-    // Find the friendship (could be in either direction)
+    // Find both friendships (bidirectional)
     const friendship1 = await ctx.db
       .query("friendships")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -276,13 +301,17 @@ export const removeFriend = mutation({
       .filter((q) => q.eq(q.field("friendId"), userId))
       .first();
 
-    const friendship = friendship1 || friendship2;
-
-    if (!friendship) {
+    if (!friendship1 && !friendship2) {
       throw new Error("Friendship not found");
     }
 
-    await ctx.db.delete(friendship._id);
+    // Delete both friendships to completely remove the connection
+    if (friendship1) {
+      await ctx.db.delete(friendship1._id);
+    }
+    if (friendship2) {
+      await ctx.db.delete(friendship2._id);
+    }
   },
 });
 

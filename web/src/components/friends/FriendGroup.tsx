@@ -71,9 +71,8 @@ export function FriendGroup({
           >
             <div className="friends-grid">
               {friends.map((friend) => (
-                <Link
+                <div
                   key={friend._id}
-                  to={`/profile/${friend.username}`}
                   className="friend-card"
                 >
                   <div className="friend-card-avatar">
@@ -92,7 +91,7 @@ export function FriendGroup({
                       <Badge variant="live" />
                     )}
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
 
