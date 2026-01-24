@@ -27,15 +27,17 @@ export const list = query({
     ];
 
     // Remove duplicates using Set
-    const uniqueFriendIds = Array.from(new Set(friendIds.map((id) => id.toString()))).map(
-      (id) => id as any
-    );
+    const uniqueFriendIds = Array.from(new Set(friendIds));
 
     // Fetch friend details
     const friends = await Promise.all(
       uniqueFriendIds.map(async (friendId) => {
         const friend = await ctx.db.get(friendId);
         if (!friend) return null;
+
+        // Type guard to ensure we're working with a user document
+        if (!("username" in friend)) return null;
+
         return {
           _id: friend._id,
           username: friend.username,

@@ -1,13 +1,21 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 
+// Declare process.env for TypeScript in Convex environment
+declare const process: { env: Record<string, string | undefined> };
+
+// Note: Convex actions can access environment variables differently than Node.js
+// They are available at runtime via the deployment's environment configuration
+
 // Discord OAuth token exchange
 export const exchangeDiscordCode = action({
   args: {
     code: v.string(),
     redirectUri: v.string(),
   },
-  handler: async (ctx, { code, redirectUri }) => {
+  handler: async (_ctx, { code, redirectUri }) => {
+    // Access Convex environment variables
+    // These are set via: npx convex env set VARIABLE_NAME value
     const clientId = process.env.DISCORD_CLIENT_ID;
     const clientSecret = process.env.DISCORD_CLIENT_SECRET;
 
@@ -78,7 +86,7 @@ export const exchangeSteamAuth = action({
   args: {
     steamId: v.string(),
   },
-  handler: async (ctx, { steamId }) => {
+  handler: async (_ctx, { steamId }) => {
     const apiKey = process.env.STEAM_API_KEY;
 
     if (!apiKey) {

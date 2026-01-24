@@ -4,7 +4,6 @@ import { Avatar } from "../Avatar";
 import { Badge } from "../Badge";
 import { Button } from "../Button";
 import "./FriendGroup.css";
-import { Link } from "react-router-dom";
 
 interface Friend {
   _id: string;
