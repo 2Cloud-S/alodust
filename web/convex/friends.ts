@@ -351,12 +351,38 @@ export const getFriendshipStatus = query({
 export const getOnlineFriendsCount = query({
   args: { userId: v.id("users") },
   handler: async (ctx, { userId }) => {
-    const friends = await ctx.runQuery(
-      ctx.functionReference("friends", "list"),
-      { userId }
+    // Get friendships where user is either the sender or receiver
+    const sentFriendships = await ctx.db
+      .query("friendships")
+      .withIndex("by_user_status", (q) =>
+        q.eq("userId", userId).eq("status", "accepted")
+      )
+      .collect();
+
+    const receivedFriendships = await ctx.db
+      .query("friendships")
+      .withIndex("by_friend_status", (q) =>
+        q.eq("friendId", userId).eq("status", "accepted")
+      )
+      .collect();
+
+    // Get friend IDs
+    const friendIds = [
+      ...sentFriendships.map((f) => f.friendId),
+      ...receivedFriendships.map((f) => f.userId),
+    ];
+
+    // Fetch friend details and count online
+    let onlineCount = 0;
+    await Promise.all(
+      friendIds.map(async (friendId) => {
+        const friend = await ctx.db.get(friendId);
+        if (friend && (friend.status === "online" || friend.status === "streaming")) {
+          onlineCount++;
+        }
+      })
     );
-    return friends.filter(
-      (f: { status: string }) => f.status === "online" || f.status === "streaming"
-    ).length;
+
+    return onlineCount;
   },
 });

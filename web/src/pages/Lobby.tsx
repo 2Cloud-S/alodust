@@ -16,14 +16,6 @@ import {
 import { Link } from "react-router-dom";
 import "./Lobby.css";
 
-interface FriendData {
-  _id: string;
-  username?: string;
-  displayName?: string;
-  avatarUrl?: string;
-  status?: string;
-}
-
 export function Lobby() {
   const { user, userId, isLoaded, isSignedIn } = useAuth();
   const [showAddFriend, setShowAddFriend] = useState(false);
@@ -76,10 +68,10 @@ export function Lobby() {
   }
 
   const onlineFriends = friends?.filter(
-    (f: FriendData) => f.status === "online" || f.status === "streaming"
+    (f) => f !== null && (f.status === "online" || f.status === "streaming")
   );
   const offlineFriends = friends?.filter(
-    (f: FriendData) => f.status === "offline" || f.status === "away"
+    (f) => f !== null && (f.status === "offline" || f.status === "away")
   );
 
   const handleAddFriend = async () => {
